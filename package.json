@@ -1,0 +1,29 @@
+{
+  "name": "lambda-sensui",
+  "version": "0.0.1",
+  "description": "uPort tx funding service",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest --verbose --runInBand"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/uport-project/lambda-sensui.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/uport-project/lambda-sensui/issues"
+  },
+  "homepage": "https://github.com/uport-project/lambda-sensui#readme",
+  "devDependencies": {
+    "babel-loader": "^7.1.2",
+    "babel-preset-env": "^1.6.0",
+    "jest": "^21.2.0"
+  },
+  "dependencies": {
+    "serverless-webpack": "^3.1.0",
+    "webpack": "^3.6.0",
+    "webpack-node-externals": "^1.6.0"
+  }
+}

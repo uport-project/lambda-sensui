@@ -1,0 +1,27 @@
+service: lambda-sensui
+
+provider:
+  name: aws
+  runtime: nodejs6.10
+  stage: develop
+  region: us-west-2
+
+  environment:
+    ETH_URLS: ''
+
+# Use the serverless-webpack plugin to transpile ES6
+plugins:
+  - serverless-webpack
+
+# Enable auto-packing of external modules
+custom:
+  webpackIncludeModules: true
+
+functions:
+  fund:
+    handler: src/api-v2_handler.fund
+    description: Fund handler
+    events:
+     - http:
+         path: v2/fund
+         method: post
