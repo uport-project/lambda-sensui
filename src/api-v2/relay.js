@@ -36,7 +36,7 @@ class RelayHandler {
 
   async signTx({metaSignedTx, blockchain}) {
     let tx = new Transaction(Buffer.from(metaSignedTx, 'hex'))
-    tx.nonce = await this.ethereumMgr.getNonce(blockchain)
+    tx.nonce = await this.ethereumMgr.getNonce(this.signer.getAddress(), blockchain)
     const rawTx = tx.serialize().toString('hex')
     return new Promise((resolve, reject) => {
       this.signer.signRawTx(rawTx, (error, signedRawTx) => {
@@ -51,8 +51,8 @@ class RelayHandler {
   async isMetaSignatureValid({metaSignedTx, blockchain}) {
     const decodedTx = TxRelaySigner.decodeMetaTx(metaSignedTx)
     //console.log(decodedTx)
-    const relayAddress = this.ethereumMgr.getRelayAddress(blockchain)
-    const nonce = await this.ethereumMgr.getRelayNonceForAddress(decodedTx.claimedAddress, blockchain)
+    const relayAddress = await this.ethereumMgr.getRelayAddress(blockchain)
+    const nonce = await this.ethereumMgr.getRelayNonce(decodedTx.claimedAddress, blockchain)
     const validMetaSig = TxRelaySigner.isMetaSignatureValid(relayAddress, decodedTx, nonce, this.signer.getAddress())
     return validMetaSig
   }

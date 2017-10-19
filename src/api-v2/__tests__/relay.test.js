@@ -6,6 +6,7 @@ const validSignedTx = 'f902468080831e848094416250ebf2123e1785d7bc122ce42d58e605f
 
 const validClaimedAddress = '0xdd847754915f464c4c1c2503e1a86cd2501dcdfe'
 const invalidClaimedAddress = '0x891349787dcab0af52642a976b652449aca23f0b'
+const validRelayAddress = '0xf17643d78c7a4430f375275a6e53851a139c37d3'
 
 const seed = 'kitten lemon sea enhance poem grid calm battle never summer night express'
 
@@ -23,12 +24,16 @@ describe('RelayHandler', () => {
         expect(networkName).toEqual('test')
         return '0x416250ebf2123e1785d7bc122ce42d58e605fc6d'
       },
-      getRelayNonceForAddress: (address, networkName) => {
+      getRelayNonce: (address, networkName) => {
         expect(address).toEqual(expectedClaimedAddress)
         expect(networkName).toEqual('test')
         return '0'
       },
-      getNonce: () => 0
+      getNonce: (address, networkName) => {
+        expect(address).toEqual(validRelayAddress)
+        expect(networkName).toEqual('test')
+        return 0
+      }
     }
     relayHandler = new RelayHandler(ethereumMgr, seed)
   })
@@ -49,7 +54,7 @@ describe('RelayHandler', () => {
     test('validate meta signature', async () => {
       expectedClaimedAddress = validClaimedAddress
       // we just mock the signer address here since it is hardcoded in the validMetaSignedTx
-      relayHandler.signer.getAddress = () => '0xf17643d78c7a4430f375275a6e53851a139c37d3'
+      relayHandler.signer.getAddress = () => validRelayAddress
       expect(await relayHandler.isMetaSignatureValid({
         metaSignedTx: validMetaSignedTx,
         blockchain: 'test'
