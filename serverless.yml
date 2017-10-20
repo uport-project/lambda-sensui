@@ -18,10 +18,10 @@ custom:
   webpackIncludeModules: true
 
 functions:
-  fund:
-    handler: src/api-v2_handler.fund
-    description: Fund handler
+  relay:
+    handler: src/api-v2_handler.relay
+    description: Relay handler
     events:
      - http:
-         path: v2/fund
+         path: v2/relay
          method: post

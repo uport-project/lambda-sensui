@@ -11,7 +11,7 @@ const signers = require('eth-signer').signers
 const rpcPort = 8555
 const testNetwork = 'test'
 
-describe('RelayHandler', () => {
+describe('EthereumMgr', () => {
 
   let ethereumMgr
   let server

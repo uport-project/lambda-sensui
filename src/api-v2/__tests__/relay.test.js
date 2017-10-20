@@ -87,7 +87,7 @@ describe('RelayHandler', () => {
       })
     })
 
-    test('handle no metaSignedTx', async () => {
+    test('handle no blockchain', async () => {
       await expect(relayHandler.handle({metaSignedTx: '0x123'})).rejects.toMatchObject({
         code: 400,
         message: expect.stringMatching(/blockchain/)

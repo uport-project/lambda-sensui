@@ -1,45 +1,35 @@
 'use strict'
 
-const RelayHandler = require('./api-v2/relay');
+const RelayHandler = require('./api-v2/relay')
+const EthereumMgr = require('./lib/ethereumMgr')
 
-const EthereumMgr = require('./lib/ethereumMgr');
+const SEED = 'actual winner member hen nose buddy strong ball stove supply stick acquire'
 
-let ethereumMgr = new EthereumMgr(process.env.PG_URL);
+let ethereumMgr = new EthereumMgr(process.env.PG_URL)
 
-let relayHandler = new RelayHandler(ethereumMgr);
+let relayHandler = new RelayHandler(ethereumMgr, SEED)
 
-module.exports.fund = (event, context, callback) => {
-  console.log(event)
-  //console.log(event.body)
-  let body;
-  try{ body = JSON.parse(event.body) } catch(e){console.log(e);body={}}
-  relayHandler.handle(body,(err,resp)=>{
-    let response;
-    if(err==null){
-      response = {
-          statusCode: 200,
-          body: JSON.stringify({
-            status: 'success',
-            data: resp
-          })
-        }
-    }else{
-      //console.log(err);
-      let code=500;
-      if(err.code) code=err.code;
-      let message=err;
-      if(err.message) message=err.message;
-
-      response = {
-        statusCode: code,
-        body: JSON.stringify({
-          status: 'error',
-          message: message
-        })
+module.exports.relay = (event, context, callback) => {
+  let response
+  relayHandler.handle(event).then(res => {
+    response = {
+      statusCode: 200,
+      body: {
+        status: 'success',
+        txHash: res
       }
     }
-    console.log("Response:"+JSON.stringify(response))
+  }).catch(error => {
+    let statusCode = error.code ? error.code : 500
+    let message = error.message ? error.message : error
+    response = {
+      statusCode,
+      body: {
+        status: 'error',
+        message
+      }
+    }
+  }).then(() => {
     callback(null, response)
   })
-
 }
