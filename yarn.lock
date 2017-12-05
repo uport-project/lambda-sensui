@@ -1524,11 +1524,10 @@ esutils@^2.0.2:
   version "2.0.2"
   resolved "https://registry.yarnpkg.com/esutils/-/esutils-2.0.2.tgz#0abf4f1caa5bcb1f7a9d8acc6dea4faaa04bac9b"
 
-eth-signer@^0.3.2:
-  version "0.3.2"
-  resolved "https://registry.yarnpkg.com/eth-signer/-/eth-signer-0.3.2.tgz#0133741c45b0bb055637863f110cc93483a95b9f"
+eth-signer@^0.3.4-beta-2:
+  version "0.3.4-beta-2"
+  resolved "https://registry.yarnpkg.com/eth-signer/-/eth-signer-0.3.4-beta-2.tgz#105d9d8f7897ae18da11c024d3805f619a91a6f2"
   dependencies:
-    bitcore-lib "^0.14.0"
     bitcore-mnemonic "^1.2.2"
     buffer "^4.9.1"
     elliptic "^6.3.1"
@@ -1541,7 +1540,7 @@ eth-signer@^0.3.2:
     solidity-sha3 "^0.4.1"
     tweetnacl "0.14.3"
     tweetnacl-util "^0.13.3"
-    uport-identity "^1.2.0"
+    uport-identity "^2.0.0-beta"
     web3 "^0.19.1"
 
 ethereum-common@^0.0.18:
@@ -3958,9 +3957,9 @@ unzip-response@^1.0.0:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/unzip-response/-/unzip-response-1.0.2.tgz#b984f0877fc0a89c2c773cc1ef7b5b232b5b06fe"
 
-uport-identity@^1.2.0, uport-identity@^1.2.3:
-  version "1.2.3"
-  resolved "https://registry.yarnpkg.com/uport-identity/-/uport-identity-1.2.3.tgz#f26ab72b8f561731c63fba07592f8eb0e50d1d58"
+uport-identity@^2.0.0-beta:
+  version "2.0.0-beta"
+  resolved "https://registry.yarnpkg.com/uport-identity/-/uport-identity-2.0.0-beta.tgz#b52caff3aff1603d226854f072ac63eb2e318540"
 
 url@^0.11.0:
   version "0.11.0"

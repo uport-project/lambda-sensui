@@ -53,7 +53,7 @@ class RelayHandler {
     const decodedTx = TxRelaySigner.decodeMetaTx(metaSignedTx)
     const relayAddress = await this.ethereumMgr.getRelayAddress(blockchain)
     const nonce = await this.ethereumMgr.getRelayNonce(decodedTx.claimedAddress, blockchain)
-    const validMetaSig = TxRelaySigner.isMetaSignatureValid(relayAddress, decodedTx, nonce, this.signer.getAddress())
+    const validMetaSig = TxRelaySigner.isMetaSignatureValid(relayAddress, decodedTx, nonce)
     return validMetaSig
   }
 

@@ -32,13 +32,14 @@ describe('EthereumMgr', () => {
     web3 = new Web3(server.provider)
     web3.eth = Promise.promisifyAll(web3.eth)
 
-    let TxRelay = new Contract(UportIdentity.TxRelay)
+    const txRelayArtifact = UportIdentity.TxRelay.v2
+    let TxRelay = new Contract(txRelayArtifact)
     TxRelay.setProvider(server.provider)
     let txRelay = await TxRelay.new(txParams)
     relayAddress = txRelay.address
     // mock the local testnet
     networks[testNetwork] = {id: netVersion, rpcUrl: 'http://localhost:8555'}
-    UportIdentity.TxRelay.networks[netVersion] = {
+    txRelayArtifact.networks[netVersion] = {
       address: relayAddress,
       links: {}
     }

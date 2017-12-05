@@ -41,12 +41,13 @@ describe('lambda relay', () => {
     web3 = new Web3(server.provider)
     web3.eth = Promise.promisifyAll(web3.eth)
 
-    let TxRelay = new Contract(UportIdentity.TxRelay)
+    const txRelayArtifact = UportIdentity.TxRelay.v2
+    let TxRelay = new Contract(txRelayArtifact)
     TxRelay.setProvider(server.provider)
     txRelay = await TxRelay.new(txParams)
     // mock the local testnet
     networks[testNetwork] = {id: netVersion, rpcUrl: 'http://localhost:8555'}
-    UportIdentity.TxRelay.networks[netVersion] = {
+    txRelayArtifact.networks[netVersion] = {
       address: txRelay.address,
       links: {}
     }
@@ -123,7 +124,7 @@ describe('lambda relay', () => {
     test('valid meta signature', async done => {
       const keypair = await KeyPair.generateAsync()
       await web3.eth.sendTransactionAsync({from: user1, to: keypair.address, value: web3.toWei(1, 'ether')})
-      const txRelaySigner = Promise.promisifyAll(new TxRelaySigner(keypair, txRelay.address, '0x54d6a9e7146bf3a81037eb8c468c472ef77ab529'))
+      const txRelaySigner = Promise.promisifyAll(new TxRelaySigner(keypair, txRelay.address, '0x54d6a9e7146bf3a81037eb8c468c472ef77ab529', '0x0000000000000000000000000000000000000000'))
       const LOG_NUMBER = 12341234
       const types = ['address', 'uint256']
       const params = [keypair.address, LOG_NUMBER]
@@ -139,6 +140,7 @@ describe('lambda relay', () => {
       const rawTx = '0x' + tx.serialize().toString('hex')
       const metaSignedTx = await txRelaySigner.signRawTxAsync(rawTx)
 
+      const decTx = TxRelaySigner.decodeMetaTx(metaSignedTx)
       relay({
         metaSignedTx,
         blockchain: testNetwork

@@ -4,6 +4,8 @@ import Web3 from 'web3'
 import Contract from 'truffle-contract'
 import Promise from 'bluebird'
 
+const txRelayArtifact = TxRelay.v2
+
 
 class EthereumMgr {
 
@@ -45,7 +47,7 @@ class EthereumMgr {
 
   async initTxRelay(networkName) {
     if (!this.txRelays[networkName]) {
-      let TxRelayContract = new Contract(TxRelay)
+      let TxRelayContract = new Contract(txRelayArtifact)
       TxRelayContract.setProvider(this.web3s[networkName].currentProvider)
       this.txRelays[networkName] = await TxRelayContract.deployed()
     }
