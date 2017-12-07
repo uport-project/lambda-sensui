@@ -1,7 +1,7 @@
 const networks = require('../lib/networks')
 const MetaTestRegistry = require('./MetaTestRegistry')
 const UportIdentity = require('uport-identity')
-const TestRPC = require('ethereumjs-testrpc')
+const TestRPC = require('ganache-cli')
 const Transaction = require('ethereumjs-tx')
 const Contract = require('truffle-contract')
 const Web3 = require('web3')
@@ -32,14 +32,15 @@ describe('lambda relay', () => {
   beforeAll(async () => {
     server = TestRPC.server()//{gasLimit: 4000000000000})
     server = Promise.promisifyAll(server)
-    let blockchain = await server.listenAsync(rpcPort)
-    const netVersion = blockchain.net_version
-    const accounts = Object.keys(blockchain.accounts)
+    await server.listenAsync(rpcPort)
+    web3 = new Web3(server.provider)
+    web3.eth = Promise.promisifyAll(web3.eth)
+    web3.version = Promise.promisifyAll(web3.version)
+    const netVersion = await web3.version.getNetworkAsync()
+    const accounts = await web3.eth.getAccountsAsync()
     user1 = accounts[0]
     user2 = accounts[1]
     txParams = {from: user1, gas: 2000000}
-    web3 = new Web3(server.provider)
-    web3.eth = Promise.promisifyAll(web3.eth)
 
     const txRelayArtifact = UportIdentity.TxRelay.v2
     let TxRelay = new Contract(txRelayArtifact)
@@ -123,7 +124,6 @@ describe('lambda relay', () => {
 
     test('valid meta signature', async done => {
       const keypair = await KeyPair.generateAsync()
-      await web3.eth.sendTransactionAsync({from: user1, to: keypair.address, value: web3.toWei(1, 'ether')})
       const txRelaySigner = Promise.promisifyAll(new TxRelaySigner(keypair, txRelay.address, '0x54d6a9e7146bf3a81037eb8c468c472ef77ab529', '0x0000000000000000000000000000000000000000'))
       const LOG_NUMBER = 12341234
       const types = ['address', 'uint256']

@@ -20,6 +20,7 @@
     "babel-loader": "^7.1.2",
     "babel-preset-env": "^1.6.0",
     "bluebird": "^3.5.1",
+    "ganache-cli": "^6.0.3",
     "jest": "^21.2.0"
   },
   "dependencies": {

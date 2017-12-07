@@ -9,16 +9,19 @@ const txRelayArtifact = TxRelay.v2
 
 class EthereumMgr {
 
+
   constructor(pgUrl) {
     this.pgUrl=pgUrl
 
     this.web3s = {}
     this.txRelays = {}
+    this.txCount = {}
     for (const network in networks) {
       let provider = new Web3.providers.HttpProvider(networks[network].rpcUrl)
       let web3 = new Web3(provider)
       web3.eth = Promise.promisifyAll(web3.eth)
       this.web3s[network] = web3
+      this.txCount[network] = {}
     }
   }
 
@@ -27,7 +30,15 @@ class EthereumMgr {
   }
 
   async getNonce(address, networkName) {
-    return await this.web3s[networkName].eth.getTransactionCountAsync(address)
+    let nonce = await this.web3s[networkName].eth.getTransactionCountAsync(address)
+    if (this.txCount[networkName][address] > nonce) {
+      nonce = this.txCount[networkName][address]
+      this.txCount[networkName][address]++
+    } else {
+      this.txCount[networkName][address] = nonce + 1
+    }
+    console.log(address, 'nonce:', nonce)
+    return nonce
   }
 
   async sendRawTransaction(signedRawTx, networkName) {
