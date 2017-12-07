@@ -18,6 +18,8 @@ const invalidMetaSignedTx = 'f902068080831e848094c67bce9957c8a593753eeabc57bba1c
 
 const rpcPort = 8555
 const testNetwork = 'test'
+const SEED = 'actual winner member hen nose buddy strong ball stove supply stick acquire'
+process.env.SEED = SEED
 
 describe('lambda relay', () => {
 

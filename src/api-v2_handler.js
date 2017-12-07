@@ -3,11 +3,8 @@
 const RelayHandler = require('./api-v2/relay')
 const EthereumMgr = require('./lib/ethereumMgr')
 
-const SEED = 'actual winner member hen nose buddy strong ball stove supply stick acquire'
-
 let ethereumMgr = new EthereumMgr(process.env.PG_URL)
-
-let relayHandler = new RelayHandler(ethereumMgr, SEED)
+let relayHandler = new RelayHandler(ethereumMgr, process.env.SEED)
 
 module.exports.relay = (event, context, callback) => {
   let response
