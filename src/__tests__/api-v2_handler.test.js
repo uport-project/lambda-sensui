@@ -21,6 +21,15 @@ const testNetwork = 'test'
 const SEED = 'actual winner member hen nose buddy strong ball stove supply stick acquire'
 process.env.SEED = SEED
 
+jest.mock('pg')
+import { Client } from 'pg'
+let pgClientMock = {
+  connect: jest.fn(),
+  query: jest.fn(() => { return Promise.resolve("ok") }),
+  end: jest.fn()
+}
+Client.mockImplementation(() => { return pgClientMock });
+
 describe('lambda relay', () => {
 
   let relay
