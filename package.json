@@ -4,7 +4,8 @@
   "description": "uPort tx funding service",
   "main": "index.js",
   "scripts": {
-    "test": "jest --verbose --runInBand"
+    "test": "jest --verbose --runInBand",
+    "coverage": "jest --coverage"
   },
   "repository": {
     "type": "git",
