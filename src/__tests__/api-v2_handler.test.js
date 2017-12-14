@@ -25,7 +25,6 @@ jest.mock('pg')
 import { Client } from 'pg'
 let pgClientMock = {
   connect: jest.fn(),
-  query: jest.fn(() => { return Promise.resolve("ok") }),
   end: jest.fn()
 }
 Client.mockImplementation(() => { return pgClientMock });
@@ -134,6 +133,10 @@ describe('lambda relay', () => {
     })
 
     test('valid meta signature', async done => {
+      pgClientMock.connect = jest.fn()
+      pgClientMock.connect.mockClear()
+      pgClientMock.end.mockClear()
+      pgClientMock.query = jest.fn(() => { return Promise.resolve({ rows: [0] }) })
       const keypair = await KeyPair.generateAsync()
       const txRelaySigner = Promise.promisifyAll(new TxRelaySigner(keypair, txRelay.address, '0x54d6a9e7146bf3a81037eb8c468c472ef77ab529', '0x0000000000000000000000000000000000000000'))
       const LOG_NUMBER = 12341234

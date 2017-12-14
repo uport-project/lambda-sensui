@@ -25,7 +25,7 @@ jest.mock('pg')
 import { Client } from 'pg'
 let pgClientMock = {
   connect: jest.fn(),
-  query: jest.fn(() => { return Promise.resolve("ok") }),
+  query: jest.fn(() => { return Promise.resolve({ rows: [0] }) }),
   end: jest.fn()
 }
 Client.mockImplementation(() => { return pgClientMock });
@@ -45,7 +45,7 @@ describe('lambda relay stress test', () => {
 
   beforeAll(async () => {
     console.log('This test runs with a 5 sec blocktime. Will take long to run.')
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 100000;
+    jasmine.DEFAULT_TIMEOUT_INTERVAL = 200000;
     server = TestRPC.server({blocktime: 5})
     server = Promise.promisifyAll(server)
     await server.listenAsync(rpcPort)

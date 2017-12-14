@@ -4,6 +4,7 @@ import Web3 from 'web3'
 import Contract from 'truffle-contract'
 import Promise from 'bluebird'
 import { Client } from 'pg'
+import { networkInterfaces } from 'os';
 
 const txRelayArtifact = TxRelay.v2
 
@@ -16,6 +17,9 @@ class EthereumMgr {
     this.web3s = {}
     this.txRelays = {}
     this.txCount = {}
+    this.client = new Client({
+      connectionString: this.pgUrl,
+    })
     for (const network in networks) {
       let provider = new Web3.providers.HttpProvider(networks[network].rpcUrl)
       let web3 = new Web3(provider)
@@ -25,32 +29,30 @@ class EthereumMgr {
     }
   }
 
-  // async getNonce(networkName) {
-  //   if (!networkName) throw ('no networkName')
-  //   if (!this.pgUrl) throw ('no pgUrl set')
+  async getNonceFromDB(networkName) {
+    if (!networkName) throw ('no networkName')
 
-  //   try {
-  //     await client.connect()
-  //     const res = await client.query(
-  //       "SELECT * \
-  //         FROM transactions_count \
-  //         WHERE network_name=$1"
-  //       , [networkName]);
-  //     return res.rows[1];
-  //   } catch (e) {
-  //     throw (e);
-  //   } finally {
-  //     await client.end()
-  //   }
-  // }
+    try {
+      await this.client.connect()
+      const res = await this.client.query(
+        "SELECT txcount \
+          FROM transactions_count \
+          WHERE network_name='$1'"
+        , networkName);
+      return res.rows[0];
+    } catch (e) {
+      throw (e);
+    } finally {
+      await this.client.end()
+    }
+  }
 
   async getBalance(address, networkName) {
     return await this.web3s[networkName].eth.getBalanceAsync(address)
   }
 
   async getNonce(address, networkName) {
-
-    let nonce = await this.web3s[networkName].eth.getTransactionCountAsync(address)
+    let nonce = await this.getNonceFromDB(networkName)
     if (this.txCount[networkName][address] > nonce) {
       nonce = this.txCount[networkName][address]
       this.txCount[networkName][address]++
@@ -63,19 +65,16 @@ class EthereumMgr {
   }
 
   async saveNonce(networkName){
-    const client = new Client({
-      connectionString: this.pgUrl,
-    })
     try {
-      await client.connect()
-      const res = await client.query(
+      await this.client.connect()
+      const res = await this.client.query(
         "INSERT INTO transactions_count(network, txcount) \
           VALUES ($1, $2)"
           ,[networkName, this.txCount[networkName][address]]);
     } catch (e) {
       throw (e);
     } finally {
-      await client.end()
+      await this.client.end()
     }
   }
 
