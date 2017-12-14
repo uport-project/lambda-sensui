@@ -7,6 +7,13 @@ const Web3 = require('web3')
 const Promise = require('bluebird')
 const signers = require('eth-signer').signers
 
+jest.mock('pg')
+import { Client } from 'pg'
+let pgClientMock = {
+  connect: jest.fn(),
+  end: jest.fn()
+}
+Client.mockImplementation(() => { return pgClientMock });
 
 const rpcPort = 8555
 const testNetwork = 'test'
@@ -58,9 +65,14 @@ describe('EthereumMgr', () => {
   })
 
   test('getNonce', async () => {
+    pgClientMock.connect = jest.fn()
+    pgClientMock.connect.mockClear()
+    pgClientMock.end.mockClear()
+    pgClientMock.query = jest.fn(() => { return Promise.resolve( { rows: [1]} )})
     let nonce = await ethereumMgr.getNonce(user1, testNetwork)
     expect(nonce).toEqual(1)
     await web3.eth.sendTransactionAsync({from: user1, to: user2, value: 99})
+    pgClientMock.query = jest.fn(() => { return Promise.resolve({ rows: [2] }) })
     nonce = await ethereumMgr.getNonce(user1, testNetwork)
     expect(nonce).toEqual(2)
   })
