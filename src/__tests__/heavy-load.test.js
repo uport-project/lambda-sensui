@@ -21,6 +21,14 @@ const testNetwork = 'test'
 const LOG_NUMBER = 12341234
 const SEED = 'actual winner member hen nose buddy strong ball stove supply stick acquire'
 
+jest.mock('pg')
+import { Client } from 'pg'
+let pgClientMock = {
+  connect: jest.fn(),
+  end: jest.fn()
+}
+Client.mockImplementation(() => { return pgClientMock });
+
 describe('lambda relay stress test', () => {
 
   let relay1
@@ -127,7 +135,12 @@ describe('lambda relay stress test', () => {
     const types = ['address', 'uint256']
     const params = [keypair.address, LOG_NUMBER]
     const data = '0x' + txutils._encodeFunctionTxData('register', types, params)
+
+    pgClientMock.connect = jest.fn()
+    pgClientMock.connect.mockClear()
+    pgClientMock.end.mockClear()
     const nonce = (await txRelay.getNonce(keypair.address)).toNumber()
+    pgClientMock.query = jest.fn(() => { return Promise.resolve({ rows: [nonce] }) })
 
     const tx = new Transaction({
       value: 0,

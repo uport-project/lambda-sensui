@@ -62,7 +62,7 @@ class EthereumMgr {
         const res = await this.client.query(
           "INSERT INTO nonces(address,nonce,network_name) \
           VALUES('$1',$2,'$3') RETURNING nonces",
-          [address, nonce, networkName])
+          [address, 0, networkName])
       } else {
         const res = await this.client.query(
           "UPDATE nonces \
@@ -84,13 +84,12 @@ class EthereumMgr {
     let dbNonce = await this.getDatabaseNonce(address, networkName)
     let networkNonce = await this.web3s[networkName].eth.getTransactionCountAsync(address)
     if (dbNonce > networkNonce) {
-      dbNonce++
+      this.updateDatabaseNonce(address, networkName, dbNonce+1)
     } else {
-      dbNonce = networkNonce +1
+      this.updateDatabaseNonce(address, networkName, networkNonce + 1)
     }
-    updateDatabaseNonce(address, networkName, dbNonce)
-    console.log(address, 'nonce:', dbNonce)
-    return dbNonce
+    console.log(address, 'nonce:', networkNonce)
+    return networkNonce
   }
 
   async sendRawTransaction(signedRawTx, networkName) {
