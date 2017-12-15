@@ -3,6 +3,7 @@ import { TxRelay } from 'uport-identity'
 import Web3 from 'web3'
 import Contract from 'truffle-contract'
 import Promise from 'bluebird'
+import { Client } from 'pg'
 
 const txRelayArtifact = TxRelay.v2
 
@@ -15,13 +16,14 @@ class EthereumMgr {
 
     this.web3s = {}
     this.txRelays = {}
-    this.txCount = {}
+    this.client = new Client({
+      connectionString: this.pgUrl,
+    })
     for (const network in networks) {
       let provider = new Web3.providers.HttpProvider(networks[network].rpcUrl)
       let web3 = new Web3(provider)
       web3.eth = Promise.promisifyAll(web3.eth)
       this.web3s[network] = web3
-      this.txCount[network] = {}
     }
   }
 
@@ -29,16 +31,66 @@ class EthereumMgr {
     return await this.web3s[networkName].eth.getBalanceAsync(address)
   }
 
-  async getNonce(address, networkName) {
-    let nonce = await this.web3s[networkName].eth.getTransactionCountAsync(address)
-    if (this.txCount[networkName][address] > nonce) {
-      nonce = this.txCount[networkName][address]
-      this.txCount[networkName][address]++
-    } else {
-      this.txCount[networkName][address] = nonce + 1
+
+  async getDatabaseNonce(address, networkName){
+    if(!address) throw ('no address')
+    if(!networkName) throw ('no networkName')
+    try {
+      await this.client.connect()
+      const res = await this.client.query(
+        "SELECT nonce \
+          FROM nonces \
+          WHERE address='$1' \
+          and network_name='$2'",
+        [address, networkName])
+      return res.rows[0];
+    } catch(e){
+      throw(e);
+    } finally {
+      await this.client.end()
     }
-    console.log(address, 'nonce:', nonce)
-    return nonce
+  }
+
+  async updateDatabaseNonce(address, networkName, nonce){
+    if (!address) throw ('no address')
+    if (!networkName) throw ('no networkName')
+    if (!nonce) throw ('no nonce')
+    try {
+      await this.client.connect()
+      if(!this.getDatabaseNonce(address, networkName)){
+        //insert row since it doesn't exist on db
+        const res = await this.client.query(
+          "INSERT INTO nonces(address,nonce,network_name) \
+          VALUES('$1',$2,'$3') RETURNING nonces",
+          [address, nonce, networkName])
+      } else {
+        const res = await this.client.query(
+          "UPDATE nonces \
+          SET nonce=$2 \
+          WHERE address='$1' \
+          AND network_name='$3' \
+          RETURNING nonces",
+          [address, nonce, networkName])
+      }
+    } catch (e) {
+      throw (e);
+    } finally {
+      await this.client.end()
+    }
+
+  }
+
+  async getNonce(address, networkName) {
+    let dbNonce = await this.getDatabaseNonce(address, networkName)
+    let networkNonce = await this.web3s[networkName].eth.getTransactionCountAsync(address)
+    if (dbNonce > networkNonce) {
+      dbNonce++
+    } else {
+      dbNonce = networkNonce +1
+    }
+    updateDatabaseNonce(address, networkName, dbNonce)
+    console.log(address, 'nonce:', dbNonce)
+    return dbNonce
   }
 
   async sendRawTransaction(signedRawTx, networkName) {
