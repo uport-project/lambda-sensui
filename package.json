@@ -4,7 +4,9 @@
   "description": "uPort tx funding service",
   "main": "index.js",
   "scripts": {
-    "test": "jest --verbose --runInBand",
+    "preparedb": "docker-compose kill  db && docker-compose up -d",
+    "jest": "PG_URL=postgresql://root:sensui@localhost:5432/sensui jest --verbose --runInBand",
+    "test": "npm run preparedb && npm run jest",
     "coverage": "jest --coverage"
   },
   "repository": {

@@ -1,0 +1,12 @@
+version: '2'
+services:
+  db:
+    image: postgres
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=root
+      - POSTGRES_DB=sensui
+      - POSTGRES_PASSWORD=sensui
+    volumes:
+    - ./sql:/docker-entrypoint-initdb.d
