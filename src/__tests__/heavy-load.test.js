@@ -94,13 +94,14 @@ describe('lambda relay stress test', () => {
   })
 
   test('heavy load on multiple relay instances', async () => {
-    let txHashes = []
-    txHashes.push(await relayNewTx(relay1))
-    txHashes.push(await relayNewTx(relay2))
-    txHashes.push(await relayNewTx(relay3))
-    txHashes.push(await relayNewTx(relay1))
-    txHashes.push(await relayNewTx(relay2))
-    txHashes.push(await relayNewTx(relay3))
+    let txHashes = [
+      await relayNewTx(relay1),
+      await relayNewTx(relay2),
+      await relayNewTx(relay3),
+      await relayNewTx(relay1),
+      await relayNewTx(relay2),
+      await relayNewTx(relay3)
+    ]
     // if something goes wrong all txs will not get mined
     // and the test will fail because it doesn't finish in time
     await waitUntilMined(txHashes)
