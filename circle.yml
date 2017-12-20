@@ -1,6 +1,8 @@
 machine:
   node:
     version: v6.11.4
+  services:
+    - docker
 
 dependencies:
   pre:
