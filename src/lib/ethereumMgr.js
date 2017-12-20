@@ -37,8 +37,8 @@ class EthereumMgr {
     if (!networkName) throw ('no networkName')
 
     const { rows } = await this.pool.query('SELECT nonce FROM nonces WHERE address = $1 and network=$2', [address, networkName])
-    console.log('current nonce:', rows[0])
-    return rows[0];
+
+    return rows[0] ? rows[0].nonce : 0
   }
 
   async insertDatabaseNonce(address, networkName, nonce, mode='insert'){
@@ -53,11 +53,11 @@ class EthereumMgr {
             RETURNING *'
 
     const values = [address, nonce, networkName]
-    console.log("values", values)
+    //console.log("values", values)
 
     try {
       const res = await this.pool.query(text, values)
-      console.log(res.rows[0])
+      //console.log(res.rows[0])
     } catch (err) {
       console.log(err.stack)
     }
@@ -66,14 +66,14 @@ class EthereumMgr {
   async getNonce(address, networkName) {
     const dbNonce = await this.getDatabaseNonce(address, networkName)
     const networkNonce = await this.web3s[networkName].eth.getTransactionCountAsync(address)
-    let nonce = 0
+    console.log('fetching nonce: db', dbNonce, ' net', networkNonce)
+    let nonce
     if (dbNonce > networkNonce) {
       nonce = dbNonce
     } else {
       nonce = networkNonce
     }
     await this.insertDatabaseNonce(address, networkName, nonce + 1)
-    console.log(address, 'nonce:', nonce)
     return nonce
   }
 
@@ -98,6 +98,10 @@ class EthereumMgr {
       TxRelayContract.setProvider(this.web3s[networkName].currentProvider)
       this.txRelays[networkName] = await TxRelayContract.deployed()
     }
+  }
+
+  async closePool() {
+    this.pool.end()
   }
 }
 

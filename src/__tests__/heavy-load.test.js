@@ -5,6 +5,7 @@ const TestRPC = require('ganache-cli')
 const Transaction = require('ethereumjs-tx')
 const Contract = require('truffle-contract')
 const Web3 = require('web3')
+const bip39 = require('bip39')
 const Promise = require('bluebird')
 const EthSigner = require('eth-signer')
 
@@ -19,7 +20,7 @@ const KeyPair = Promise.promisifyAll(EthSigner.generators.KeyPair)
 const rpcPort = 8555
 const testNetwork = 'test'
 const LOG_NUMBER = 12341234
-const SEED = 'actual winner member hen nose buddy strong ball stove supply stick acquire'
+const SEED = bip39.generateMnemonic()
 
 
 describe('lambda relay stress test', () => {
@@ -27,6 +28,9 @@ describe('lambda relay stress test', () => {
   let relay1
   let relay2
   let relay3
+  let em1
+  let em2
+  let em3
   let server
   let web3
   let user1
@@ -68,12 +72,12 @@ describe('lambda relay stress test', () => {
     metaTestReg = await MetaTestRegistryContract.new(txParams)
     console.log('done')
 
-    let ethereumMgr = new EthereumMgr(process.env.PG_URL)
-    relay1 = new RelayHandler(ethereumMgr, SEED)
-    ethereumMgr = new EthereumMgr(process.env.PG_URL)
-    relay2 = new RelayHandler(ethereumMgr, SEED)
-    ethereumMgr = new EthereumMgr(process.env.PG_URL)
-    relay3 = new RelayHandler(ethereumMgr, SEED)
+    em1 = new EthereumMgr(process.env.PG_URL)
+    relay1 = new RelayHandler(em1, SEED)
+    em2 = new EthereumMgr(process.env.PG_URL)
+    relay2 = new RelayHandler(em2, SEED)
+    em3 = new EthereumMgr(process.env.PG_URL)
+    relay3 = new RelayHandler(em3, SEED)
   })
 
   test('heavy load on one relay instance', async () => {
@@ -92,11 +96,11 @@ describe('lambda relay stress test', () => {
   test('heavy load on multiple relay instances', async () => {
     let txHashes = []
     txHashes.push(await relayNewTx(relay1))
+    txHashes.push(await relayNewTx(relay2))
+    txHashes.push(await relayNewTx(relay3))
     txHashes.push(await relayNewTx(relay1))
-    txHashes.push(await relayNewTx(relay1))
     txHashes.push(await relayNewTx(relay2))
-    txHashes.push(await relayNewTx(relay2))
-    txHashes.push(await relayNewTx(relay2))
+    txHashes.push(await relayNewTx(relay3))
     // if something goes wrong all txs will not get mined
     // and the test will fail because it doesn't finish in time
     await waitUntilMined(txHashes)
@@ -104,6 +108,9 @@ describe('lambda relay stress test', () => {
 
   afterAll(() => {
     server.close()
+    em1.closePool()
+    em2.closePool()
+    em3.closePool()
   })
 
   async function waitUntilMined(txHashes) {

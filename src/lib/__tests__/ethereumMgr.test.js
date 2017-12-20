@@ -79,5 +79,6 @@ describe('EthereumMgr', () => {
 
   afterAll(() => {
     server.close()
+    ethereumMgr.closePool()
   })
 })
