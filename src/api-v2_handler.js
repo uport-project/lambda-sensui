@@ -30,3 +30,5 @@ module.exports.relay = (event, context, callback) => {
     callback(null, response)
   })
 }
+
+module.exports.endPool = ethereumMgr.closePool.bind(ethereumMgr)

@@ -11,6 +11,7 @@ const signers = require('eth-signer').signers
 const rpcPort = 8555
 const testNetwork = 'test'
 
+
 describe('EthereumMgr', () => {
 
   let ethereumMgr
@@ -43,7 +44,8 @@ describe('EthereumMgr', () => {
       address: relayAddress,
       links: {}
     }
-    ethereumMgr = new EthereumMgr()
+    ethereumMgr = new EthereumMgr(process.env.PG_URL)
+
   })
 
   test('empty constructor', () => {
@@ -77,5 +79,6 @@ describe('EthereumMgr', () => {
 
   afterAll(() => {
     server.close()
+    ethereumMgr.closePool()
   })
 })
