@@ -1,6 +1,6 @@
 machine:
   node:
-    version: v6.11.4
+    version: v6.1.0
   services:
     - docker
 
@@ -9,7 +9,7 @@ dependencies:
     - sudo apt-get update
   override:
     - npm install --no-optional
-    - npm install -g serverless@1.24.1
+    - npm install -g serverless@1.25.0
 
 test:
   override:
