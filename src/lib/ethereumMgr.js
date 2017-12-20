@@ -53,11 +53,9 @@ class EthereumMgr {
             RETURNING *'
 
     const values = [address, nonce, networkName]
-    //console.log("values", values)
 
     try {
       const res = await this.pool.query(text, values)
-      //console.log(res.rows[0])
     } catch (err) {
       console.log(err.stack)
     }
