@@ -41,7 +41,7 @@ describe('lambda relay stress test', () => {
 
   beforeAll(async () => {
     console.log('This test runs with a 5 sec blocktime. Will take long to run.')
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 90000;
+    jasmine.DEFAULT_TIMEOUT_INTERVAL = 120000;
     server = TestRPC.server({blocktime: 5})
     server = Promise.promisifyAll(server)
     await server.listenAsync(rpcPort)
