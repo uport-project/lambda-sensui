@@ -1,0 +1,22 @@
+machine:
+  node:
+    version: v6.11.4
+
+dependencies:
+  pre:
+    - sudo apt-get update
+  override:
+    - npm install --no-optional
+    - npm install -g serverless@1.24.1
+
+deployment:
+  develop:
+    branch:
+      - ch6296/ci-cd
+    commands:
+    - sls deploy --stage develop
+  master:
+    branch:
+      - master
+    commands:
+      - sls deploy --stage master
