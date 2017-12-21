@@ -22,9 +22,11 @@ deployment:
     branch:
       - develop
     commands:
+    - sls package
     - sls deploy --stage develop
   master:
     branch:
       - master
     commands:
+      - sls package
       - sls deploy --stage master
