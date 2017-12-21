@@ -1,0 +1,30 @@
+machine:
+  node:
+    version: v6.1.0
+  services:
+    - docker
+
+dependencies:
+  pre:
+    - sudo apt-get update
+  override:
+    - npm install --no-optional
+    - npm install -g serverless@1.25.0
+
+test:
+  override:
+    - docker build -t testdb -f circle.Dockerfile .
+    - docker run -p 5433:5432 --name pg-test -d testdb
+    - npm run test
+
+deployment:
+  develop:
+    branch:
+      - develop
+    commands:
+    - sls deploy --stage develop
+  master:
+    branch:
+      - master
+    commands:
+      - sls deploy --stage master
