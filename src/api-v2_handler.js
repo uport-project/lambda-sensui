@@ -17,6 +17,7 @@ module.exports.relay = (event, context, callback) => {
       }
     }
   }).catch(error => {
+    console.log("ERROR", error)
     let statusCode = error.code ? error.code : 500
     let message = error.message ? error.message : error
     response = {
