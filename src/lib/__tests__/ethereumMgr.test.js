@@ -77,6 +77,11 @@ describe('EthereumMgr', () => {
     expect(address).toEqual(relayAddress)
   })
 
+  test('getGasPrice', async () => {
+    let price = await ethereumMgr.getGasPrice(testNetwork)
+    expect(price).toEqual(20000000000)
+  })
+
   afterAll(() => {
     server.close()
     ethereumMgr.closePool()
