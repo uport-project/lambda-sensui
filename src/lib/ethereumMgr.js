@@ -7,6 +7,7 @@ import { Client, Pool } from 'pg'
 
 const txRelayArtifact = TxRelay.v2
 
+const DEFAULT_GAS_PRICE = 20000000000 // 20 Gwei
 
 class EthereumMgr {
 
@@ -16,6 +17,7 @@ class EthereumMgr {
 
     this.web3s = {}
     this.txRelays = {}
+    this.gasPrice = DEFAULT_GAS_PRICE
 
     this.pool = new Pool({
       connectionString: this.pgUrl,
@@ -77,6 +79,15 @@ class EthereumMgr {
 
   async sendRawTransaction(signedRawTx, networkName) {
     return await this.web3s[networkName].eth.sendRawTransactionAsync(signedRawTx)
+  }
+
+  async getGasPrice(networkName) {
+    try {
+      this.gasPrice = (await this.web3s[networkName].eth.getGasPriceAsync()).toNumber()
+    } catch (e) {
+      console.log(e)
+    }
+    return this.gasPrice
   }
 
   async getRelayNonce(address, networkName) {

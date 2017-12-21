@@ -46,6 +46,16 @@ describe('lambda relay', () => {
     user2 = accounts[1]
     txParams = {from: user1, gas: 2000000}
 
+    // send eth to the relay
+    const hdPrivKey = generators.Phrase.toHDPrivateKey(SEED)
+    const signer = new EthSigner.signers.HDSigner(hdPrivKey)
+    await web3.eth.sendTransactionAsync({
+      to: signer.getAddress(),
+      value: web3.toWei(1, 'ether'),
+      from: user1,
+      gas: 2000000
+    })
+
     const txRelayArtifact = UportIdentity.TxRelay.v2
     let TxRelay = new Contract(txRelayArtifact)
     TxRelay.setProvider(server.provider)

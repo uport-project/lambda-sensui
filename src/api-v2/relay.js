@@ -38,6 +38,7 @@ class RelayHandler {
     tx.nonce = await this.ethereumMgr.getNonce(this.signer.getAddress(), blockchain)
     // TODO - set correct gas Limit
     tx.gasLimit = 3000000
+    tx.gasPrice = await this.ethereumMgr.getGasPrice(blockchain)
     const rawTx = tx.serialize().toString('hex')
     return new Promise((resolve, reject) => {
       this.signer.signRawTx(rawTx, (error, signedRawTx) => {
