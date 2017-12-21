@@ -52,7 +52,8 @@ describe('lambda relay', () => {
     await web3.eth.sendTransactionAsync({
       to: signer.getAddress(),
       value: web3.toWei(1, 'ether'),
-      ...txParams
+      from: user1,
+      gas: 2000000
     })
 
     const txRelayArtifact = UportIdentity.TxRelay.v2
