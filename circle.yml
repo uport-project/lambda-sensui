@@ -20,7 +20,7 @@ test:
 deployment:
   develop:
     branch:
-      - ch6296/ci-cd
+      - develop
     commands:
     - sls deploy --stage develop
   master:
