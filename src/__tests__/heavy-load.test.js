@@ -41,7 +41,7 @@ describe('lambda relay stress test', () => {
 
   beforeAll(async () => {
     console.log('This test runs with a 5 sec blocktime. Will take long to run.')
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 120000;
+    jasmine.DEFAULT_TIMEOUT_INTERVAL = 180000;
     server = TestRPC.server({blocktime: 5})
     server = Promise.promisifyAll(server)
     await server.listenAsync(rpcPort)
@@ -159,9 +159,15 @@ describe('lambda relay stress test', () => {
 
     const decTx = TxRelaySigner.decodeMetaTx(metaSignedTx)
     console.log('send tx to relay')
-    return await relay.handle({
-      metaSignedTx,
-      blockchain: testNetwork
+    const event = {
+      body: JSON.stringify({ metaSignedTx, blockchain: testNetwork })
+    }
+
+    let txHash
+    await relay.handle(event, {}, (err, res) => {
+      txHash = res
     })
+    return txHash
+
   }
 })
