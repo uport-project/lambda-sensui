@@ -12,25 +12,44 @@ class RelayHandler {
     this.signer = new HDSigner(hdPrivKey)
   }
 
-  async handle(body) {
+  async handle(event, context, cb) {
+    //Parse body
+    let body;
+    try {
+      body = JSON.parse(event.body)
+    } catch (e) {
+      cb({ code: 400, message: 'no json body'})
+      return;
+    }
+
     if (!body) {
-      throw {code: 400, message: 'no body'}
-      return
+      cb({code: 400, message: 'no body'})
+      return;
     }
     if (!body.metaSignedTx) {
-      throw {code: 400, message: 'metaSignedTx paramter missing'}
+      cb ({code: 400, message: 'metaSignedTx paramter missing'})
+      return;
     }
     if (!body.blockchain) {
-      throw {code: 400, message: 'blockchain paramter missing'}
+      cb ({code: 400, message: 'blockchain paramter missing'})
+      return;
     }
     if (!(await this.isMetaSignatureValid(body))) {
-      throw {code: 403, message: 'Meta signature invalid'}
+      cb({code: 403, message: 'Meta signature invalid'})
+      return;
     }
 
-    const signedRawTx = await this.signTx(body)
-    const txHash = await this.ethereumMgr.sendRawTransaction(signedRawTx, body.blockchain)
+    try{
+      const signedRawTx = await this.signTx(body)
+      const txHash = await this.ethereumMgr.sendRawTransaction(signedRawTx, body.blockchain)
+      cb(null, txHash)
+    } catch(err) {
+      console.log("Error on this.ethereumMgr.sendRawTransaction")
+      console.log(err)
+      cb({ code: 500, message: err.message })
+      return;
+    }
 
-    return txHash
   }
 
   async signTx({metaSignedTx, blockchain}) {
