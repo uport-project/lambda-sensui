@@ -16,8 +16,14 @@ class RelayHandler {
     //Parse body
     let body;
     try {
-      body = JSON.parse(event.body)
+      if (event.body == undefined){
+        let evt = JSON.stringify(event)
+        body = JSON.parse(evt).body
+      } else {
+        body = event.body
+      }
     } catch (e) {
+      console.log(e)
       cb({ code: 400, message: 'no json body'})
       return;
     }
