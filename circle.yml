@@ -20,7 +20,7 @@ test:
 deployment:
   develop:
     branch:
-      - hotfix/api-gateway
+      - develop
     commands:
     - sls package
     - sls deploy --stage develop
