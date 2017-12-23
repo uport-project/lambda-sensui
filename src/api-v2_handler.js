@@ -17,10 +17,10 @@ const doHandler = (handler, event, context, callback) => {
     if (err == null) {
       response = {
         statusCode: 200,
-        body:{
+        body:JSON.stringify({
           status: 'success',
-          txHash: resp
-        }
+          data: resp
+        })
       }
     } else {
       console.log("ERROR: ", err.message);
@@ -31,10 +31,10 @@ const doHandler = (handler, event, context, callback) => {
 
       response = {
         statusCode: code,
-        body: {
-          status: 'error',
-          message: message
-        }
+        body: JSON.stringify({
+          status: 'success',
+          data: resp
+        })
       }
     }
     callback(null, response)
