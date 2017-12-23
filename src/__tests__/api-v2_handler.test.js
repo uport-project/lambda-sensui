@@ -73,55 +73,64 @@ describe('lambda relay', () => {
 
   describe('faulty requests', () => {
     test('empty body', done => {
-      relay(null, null, (err, response) => {
+      relay({}, null, (err, response) => {
         expect(response).toMatchObject({
           statusCode: 400,
-          body: {
+          body: JSON.stringify({
             status: 'error',
-            message: expect.stringMatching(/no body/)
-          }
+            message: 'no json body'
+          })
         })
         done()
       })
     })
 
     test('no metaSignedTx', done => {
-      relay({}, null, (err, response) => {
+      let event = {
+        body: JSON.stringify({ blockchain: "test" })
+      }
+      relay(event, null, (err, response) => {
         expect(response).toMatchObject({
           statusCode: 400,
-          body: {
+          body: JSON.stringify({
             status: 'error',
-            message: expect.stringMatching(/metaSignedTx/)
-          }
+            message: 'metaSignedTx paramter missing'
+          })
         })
         done()
       })
     })
 
     test('no blockchain', done => {
-      relay({metaSignedTx: '0x123'}, null, (err, response) => {
+      let event = {
+        body: JSON.stringify({ metaSignedTx: "0x123" })
+      }
+      relay(event, null, (err, response) => {
         expect(response).toMatchObject({
           statusCode: 400,
-          body: {
+          body: JSON.stringify({
             status: 'error',
-            message: expect.stringMatching(/blockchain/)
-          }
+            message: 'blockchain paramter missing'
+          })
         })
         done()
       })
     })
 
     test('invalid meta signature', done => {
-      relay({
-        metaSignedTx: invalidMetaSignedTx,
-        blockchain: testNetwork
-      }, null, (err, response) => {
+      let event = {
+        body: JSON.stringify({
+          metaSignedTx: invalidMetaSignedTx,
+          blockchain: testNetwork
+        })
+      }
+      relay(event, null, (err, response) => {
         expect(response).toMatchObject({
           statusCode: 403,
-          body: {
+          body: JSON.stringify({
             status: 'error',
-            message: expect.stringMatching(/Meta signature invalid/)
-          }
+            message: 'Meta signature invalid'
+          })
         })
         done()
       })
@@ -157,16 +166,16 @@ describe('lambda relay', () => {
       const metaSignedTx = await txRelaySigner.signRawTxAsync(rawTx)
 
       const decTx = TxRelaySigner.decodeMetaTx(metaSignedTx)
-      relay({
-        metaSignedTx,
-        blockchain: testNetwork
-      }, null, async (err, response) => {
+      const event = {
+        body: JSON.stringify({
+          metaSignedTx,
+          blockchain: testNetwork
+        })
+      }
+      relay(event, null, async (err, response) => {
         expect(response).toMatchObject({
           statusCode: 200,
-          body: {
-            status: 'success',
-            txHash: expect.stringMatching(/0x/)
-          }
+          body: expect.stringMatching(/{\"status\":\"success\",\"data\":\"0x/)
         })
         const regNum = await metaTestReg.registry(keypair.address)
         expect(regNum.toNumber()).toEqual(LOG_NUMBER)

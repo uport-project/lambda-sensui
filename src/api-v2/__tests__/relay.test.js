@@ -77,31 +77,45 @@ describe('RelayHandler', () => {
 
   describe('handle', () => {
     test('handle no body', async () => {
-      await expect(relayHandler.handle()).rejects.toMatchObject({
-        code: 400,
-        message: expect.stringMatching(/no body/)
+
+      await relayHandler.handle({}, {}, (err, res) => {
+        expect(err).not.toBeNull()
+        expect(err.code).toEqual(400)
+        expect(err.message).toMatch(/no json body/)
       })
     })
 
     test('handle no metaSignedTx', async () => {
-      await expect(relayHandler.handle({})).rejects.toMatchObject({
-        code: 400,
-        message: expect.stringMatching(/metaSignedTx/)
+      let event = {
+        body: JSON.stringify({ blockchain: "test" })
+      }
+      await relayHandler.handle(event, {}, (err, res) => {
+        expect(err).not.toBeNull()
+        expect(err.code).toEqual(400)
+        expect(err.message).toMatch(/metaSignedTx/)
       })
     })
 
     test('handle no blockchain', async () => {
-      await expect(relayHandler.handle({metaSignedTx: '0x123'})).rejects.toMatchObject({
-        code: 400,
-        message: expect.stringMatching(/blockchain/)
+      let event = {
+        body: JSON.stringify({ metaSignedTx: "0x123" })
+      }
+      await relayHandler.handle(event, {}, (err, res) => {
+        expect(err).not.toBeNull()
+        expect(err.code).toEqual(400)
+        expect(err.message).toMatch(/blockchain/)
       })
     })
 
     test('handle invalid metaSignedTx', async () => {
       expectedClaimedAddress = invalidClaimedAddress
-      await expect(relayHandler.handle({metaSignedTx: invalidMetaSignedTx, blockchain: 'test'})).rejects.toMatchObject({
-        code: 403,
-        message: 'Meta signature invalid'
+      let event = {
+        body: JSON.stringify({ metaSignedTx: invalidMetaSignedTx, blockchain: 'test' })
+      }
+      await relayHandler.handle(event, {}, (err, res) => {
+        expect(err).not.toBeNull()
+        expect(err.code).toEqual(403)
+        expect(err.message).toMatch(/Meta signature invalid/)
       })
     })
 
@@ -111,8 +125,13 @@ describe('RelayHandler', () => {
         expect(metaSignedTx).toEqual(validSignedTx)
         return '0x12312342345'
       }
-      const txHash = await relayHandler.handle({metaSignedTx: validMetaSignedTx, blockchain: 'test'})
-      expect(txHash).toEqual('0x12312342345')
+      let event = {
+        body: JSON.stringify({ metaSignedTx: validMetaSignedTx, blockchain: 'test' })
+      }
+      await relayHandler.handle(event, {}, (err, txHash) => {
+        expect(err).toBeNull()
+        expect(txHash).toEqual('0x12312342345')
+      })
     })
   })
 })
