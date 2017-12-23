@@ -29,11 +29,12 @@ const doHandler = (handler, event, context, callback) => {
       let message = err;
       if (err.message) message = err.message;
 
+      let body =
       response = {
         statusCode: code,
         body: JSON.stringify({
-          status: 'success',
-          data: resp
+          status: 'error',
+          message
         })
       }
     }

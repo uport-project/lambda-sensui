@@ -76,10 +76,10 @@ describe('lambda relay', () => {
       relay({}, null, (err, response) => {
         expect(response).toMatchObject({
           statusCode: 400,
-          body: {
+          body: JSON.stringify({
             status: 'error',
-            message: expect.stringMatching(/no json body/)
-          }
+            message: 'no json body'
+          })
         })
         done()
       })
@@ -92,10 +92,10 @@ describe('lambda relay', () => {
       relay(event, null, (err, response) => {
         expect(response).toMatchObject({
           statusCode: 400,
-          body: {
+          body: JSON.stringify({
             status: 'error',
-            message: expect.stringMatching(/metaSignedTx/)
-          }
+            message: 'metaSignedTx paramter missing'
+          })
         })
         done()
       })
@@ -108,10 +108,10 @@ describe('lambda relay', () => {
       relay(event, null, (err, response) => {
         expect(response).toMatchObject({
           statusCode: 400,
-          body: {
+          body: JSON.stringify({
             status: 'error',
-            message: expect.stringMatching(/blockchain/)
-          }
+            message: 'blockchain paramter missing'
+          })
         })
         done()
       })
@@ -127,10 +127,10 @@ describe('lambda relay', () => {
       relay(event, null, (err, response) => {
         expect(response).toMatchObject({
           statusCode: 403,
-          body: {
+          body: JSON.stringify({
             status: 'error',
-            message: expect.stringMatching(/Meta signature invalid/)
-          }
+            message: 'Meta signature invalid'
+          })
         })
         done()
       })
@@ -175,10 +175,7 @@ describe('lambda relay', () => {
       relay(event, null, async (err, response) => {
         expect(response).toMatchObject({
           statusCode: 200,
-          body: {
-            status: 'success',
-            txHash: expect.stringMatching(/0x/)
-          }
+          body: expect.stringMatching(/{\"status\":\"success\",\"data\":\"0x/)
         })
         const regNum = await metaTestReg.registry(keypair.address)
         expect(regNum.toNumber()).toEqual(LOG_NUMBER)
