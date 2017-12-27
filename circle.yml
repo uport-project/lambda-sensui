@@ -18,7 +18,7 @@ test:
 deployment:
   develop:
     branch:
-      - develop
+      - hotfix/handle_event_body
     commands:
     - sls package
     - sls deploy --stage develop
