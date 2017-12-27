@@ -73,7 +73,7 @@ describe('lambda relay', () => {
 
   describe('faulty requests', () => {
     test('empty body', done => {
-      relay({}, null, (err, response) => {
+      relay(undefined, null, (err, response) => {
         expect(response).toMatchObject({
           statusCode: 400,
           body: JSON.stringify({
@@ -87,7 +87,7 @@ describe('lambda relay', () => {
 
     test('no metaSignedTx', done => {
       let event = {
-        body: JSON.stringify({ blockchain: "test" })
+        blockchain: "test"
       }
       relay(event, null, (err, response) => {
         expect(response).toMatchObject({
@@ -103,7 +103,7 @@ describe('lambda relay', () => {
 
     test('no blockchain', done => {
       let event = {
-        body: JSON.stringify({ metaSignedTx: "0x123" })
+        metaSignedTx: "0x123"
       }
       relay(event, null, (err, response) => {
         expect(response).toMatchObject({
@@ -119,10 +119,8 @@ describe('lambda relay', () => {
 
     test('invalid meta signature', done => {
       let event = {
-        body: JSON.stringify({
           metaSignedTx: invalidMetaSignedTx,
           blockchain: testNetwork
-        })
       }
       relay(event, null, (err, response) => {
         expect(response).toMatchObject({
@@ -167,10 +165,8 @@ describe('lambda relay', () => {
 
       const decTx = TxRelaySigner.decodeMetaTx(metaSignedTx)
       const event = {
-        body: JSON.stringify({
           metaSignedTx,
           blockchain: testNetwork
-        })
       }
       relay(event, null, async (err, response) => {
         expect(response).toMatchObject({
