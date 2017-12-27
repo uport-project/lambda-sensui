@@ -87,7 +87,7 @@ describe('RelayHandler', () => {
 
     test('handle no metaSignedTx', async () => {
       let event = {
-        body: JSON.stringify({ blockchain: "test" })
+        body: { blockchain: "test" }
       }
       await relayHandler.handle(event, {}, (err, res) => {
         expect(err).not.toBeNull()
@@ -98,7 +98,7 @@ describe('RelayHandler', () => {
 
     test('handle no blockchain', async () => {
       let event = {
-        body: JSON.stringify({ metaSignedTx: "0x123" })
+        body: { metaSignedTx: "0x123" }
       }
       await relayHandler.handle(event, {}, (err, res) => {
         expect(err).not.toBeNull()
@@ -110,7 +110,7 @@ describe('RelayHandler', () => {
     test('handle invalid metaSignedTx', async () => {
       expectedClaimedAddress = invalidClaimedAddress
       let event = {
-        body: JSON.stringify({ metaSignedTx: invalidMetaSignedTx, blockchain: 'test' })
+        body: { metaSignedTx: invalidMetaSignedTx, blockchain: 'test' }
       }
       await relayHandler.handle(event, {}, (err, res) => {
         expect(err).not.toBeNull()
@@ -126,7 +126,7 @@ describe('RelayHandler', () => {
         return '0x12312342345'
       }
       let event = {
-        body: JSON.stringify({ metaSignedTx: validMetaSignedTx, blockchain: 'test' })
+        body: { metaSignedTx: validMetaSignedTx, blockchain: 'test' }
       }
       await relayHandler.handle(event, {}, (err, txHash) => {
         expect(err).toBeNull()
