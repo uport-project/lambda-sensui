@@ -13,6 +13,8 @@ class RelayHandler {
   }
 
   async handle(event, context, cb) {
+    event = typeof event === String ? JSON.parse(event) : event
+
     if (!event) {
       cb({code: 400, message: 'no json body'})
       return;
