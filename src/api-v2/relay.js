@@ -13,35 +13,26 @@ class RelayHandler {
   }
 
   async handle(event, context, cb) {
-    //Parse body
-    let body;
-    try {
-      body = JSON.parse(event.body)
-    } catch (e) {
-      cb({ code: 400, message: 'no json body'})
+    if (!event) {
+      cb({code: 400, message: 'no json body'})
       return;
     }
-
-    if (!body) {
-      cb({code: 400, message: 'no body'})
-      return;
-    }
-    if (!body.metaSignedTx) {
+    if (!event.metaSignedTx) {
       cb ({code: 400, message: 'metaSignedTx paramter missing'})
       return;
     }
-    if (!body.blockchain) {
+    if (!event.blockchain) {
       cb ({code: 400, message: 'blockchain paramter missing'})
       return;
     }
-    if (!(await this.isMetaSignatureValid(body))) {
+    if (!(await this.isMetaSignatureValid(event))) {
       cb({code: 403, message: 'Meta signature invalid'})
       return;
     }
 
     try{
-      const signedRawTx = await this.signTx(body)
-      const txHash = await this.ethereumMgr.sendRawTransaction(signedRawTx, body.blockchain)
+      const signedRawTx = await this.signTx(event)
+      const txHash = await this.ethereumMgr.sendRawTransaction(signedRawTx, event.blockchain)
       cb(null, txHash)
     } catch(err) {
       console.log("Error on this.ethereumMgr.sendRawTransaction")

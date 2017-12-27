@@ -160,7 +160,8 @@ describe('lambda relay stress test', () => {
     const decTx = TxRelaySigner.decodeMetaTx(metaSignedTx)
     console.log('send tx to relay')
     const event = {
-      body: JSON.stringify({ metaSignedTx, blockchain: testNetwork })
+      metaSignedTx,
+      blockchain: testNetwork
     }
 
     let txHash
