@@ -14,16 +14,25 @@ class RelayHandler {
 
   async handle(event, context, cb) {
     //Parse body
+
     let body;
-    try {
-      body = JSON.parse(event.body)
-    } catch (e) {
-      cb({ code: 400, message: 'no json body'})
+
+    if (event && !event.body){
+      body = event
+    } else if (event && event.body) {
+      try {
+        body = JSON.parse(event.body)
+      } catch (e) {
+        cb({ code: 400, message: 'no json body'})
+        return;
+      }
+    } else {
+      cb({code: 400, message: 'no json body'})
       return;
     }
 
     if (!body) {
-      cb({code: 400, message: 'no body'})
+      cb({code: 400, message: 'no json body'})
       return;
     }
     if (!body.metaSignedTx) {
@@ -80,4 +89,3 @@ class RelayHandler {
 }
 
 module.exports = RelayHandler
-

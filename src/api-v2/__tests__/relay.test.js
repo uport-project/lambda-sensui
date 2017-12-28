@@ -78,7 +78,7 @@ describe('RelayHandler', () => {
   describe('handle', () => {
     test('handle no body', async () => {
 
-      await relayHandler.handle({}, {}, (err, res) => {
+      await relayHandler.handle(undefined, null, (err, res) => {
         expect(err).not.toBeNull()
         expect(err.code).toEqual(400)
         expect(err.message).toMatch(/no json body/)
