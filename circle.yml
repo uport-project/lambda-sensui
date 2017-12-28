@@ -13,14 +13,12 @@ dependencies:
 
 test:
   override:
-    - docker build -t testdb -f circle.Dockerfile .
-    - docker run -p 5433:5432 --name pg-test -d testdb
-    - npm run test
+    - sh ./run_tests.sh
 
 deployment:
   develop:
     branch:
-      - develop
+      - hotfix/payload
     commands:
     - sls package
     - sls deploy --stage develop

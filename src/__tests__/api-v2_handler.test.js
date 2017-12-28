@@ -73,7 +73,7 @@ describe('lambda relay', () => {
 
   describe('faulty requests', () => {
     test('empty body', done => {
-      relay({}, null, (err, response) => {
+      relay(undefined, null, (err, response) => {
         expect(response).toMatchObject({
           statusCode: 400,
           body: JSON.stringify({
