@@ -18,7 +18,7 @@ test:
 deployment:
   develop:
     branch:
-      - hotfix/payload
+      - develop
     commands:
     - sls package
     - sls deploy --stage develop
