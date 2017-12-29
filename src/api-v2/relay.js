@@ -4,6 +4,13 @@ import Transaction from 'ethereumjs-tx'
 const TxRelaySigner = signers.TxRelaySigner
 const HDSigner = signers.HDSigner
 
+function stripHexPrefix(str) {
+  if (str.startsWith('0x')) {
+    return str.slice(2)
+  }
+  return str
+}
+
 class RelayHandler {
   constructor (ethereumMgr, phrase) {
     this.ethereumMgr = ethereumMgr
@@ -43,6 +50,8 @@ class RelayHandler {
       cb ({code: 400, message: 'blockchain paramter missing'})
       return;
     }
+    // support hex strings starting with 0x
+    body.metaSignedTx = stripHexPrefix(body.metaSignedTx)
     if (!(await this.isMetaSignatureValid(body))) {
       cb({code: 403, message: 'Meta signature invalid'})
       return;
