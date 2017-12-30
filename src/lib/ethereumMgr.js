@@ -46,7 +46,7 @@ class EthereumMgr {
         connectionString: this.pgUrl,
       })
 
-      const hdPrivKey = generators.Phrase.toHDPrivateKey(phrase)
+      const hdPrivKey = generators.Phrase.toHDPrivateKey(this.seed)
       this.signer = new HDSigner(hdPrivKey)
   
     }
@@ -149,8 +149,8 @@ class EthereumMgr {
 
   async isMetaSignatureValid({metaSignedTx, blockchain}) {
     const decodedTx = TxRelaySigner.decodeMetaTx(metaSignedTx)
-    const relayAddress = await this.ethereumMgr.getRelayAddress(blockchain)
-    const nonce = await this.ethereumMgr.getRelayNonce(decodedTx.claimedAddress, blockchain)
+    const relayAddress = await this.getRelayAddress(blockchain)
+    const nonce = await this.getRelayNonce(decodedTx.claimedAddress, blockchain)
     const validMetaSig = TxRelaySigner.isMetaSignatureValid(relayAddress, decodedTx, nonce)
     return validMetaSig
   }

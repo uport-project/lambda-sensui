@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "preparedb": "docker-compose kill  db && docker-compose up -d",
-    "test": "PG_URL=postgresql://root:sensui@localhost:5433/sensui jest --verbose --runInBand",
+    "test": "jest --verbose --runInBand",
     "test-docker": "npm run preparedb &&  npm run jest",
     "coverage": "jest --coverage"
   },
