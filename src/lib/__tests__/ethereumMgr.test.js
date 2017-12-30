@@ -82,6 +82,37 @@ describe('EthereumMgr', () => {
     expect(price).toEqual(20000000000)
   })
 
+  describe('isMetaSignatureValid', () => {
+    test('not validate meta signature', async () => {
+      expectedClaimedAddress = invalidClaimedAddress
+      expect(await relayHandler.isMetaSignatureValid({
+        metaSignedTx: invalidMetaSignedTx,
+        blockchain: 'test'
+      })).toBeFalsy()
+    })
+
+    test('validate meta signature', async () => {
+      expectedClaimedAddress = validClaimedAddress
+      // we just mock the signer address here since it is hardcoded in the validMetaSignedTx
+      relayHandler.signer.getAddress = () => validRelayAddress
+      expect(await relayHandler.isMetaSignatureValid({
+        metaSignedTx: validMetaSignedTx,
+        blockchain: 'test'
+      })).toBeTruthy()
+    })
+  })
+
+  describe('signTx', () => {
+    test('signs a tx correctly', async () => {
+      const signedRawTx = await relayHandler.signTx({
+        metaSignedTx: validMetaSignedTx,
+        blockchain: 'test'
+      })
+      expect(signedRawTx).toEqual(validSignedTx)
+    })
+  })
+
+
   afterAll(() => {
     server.close()
     ethereumMgr.closePool()
