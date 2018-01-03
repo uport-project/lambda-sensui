@@ -2,10 +2,12 @@
 const AWS = require('aws-sdk');
 
 const EthereumMgr = require('./lib/ethereumMgr')
+const MetaTxMgr = require('./lib/metaTxMgr')
 const RelayHandler = require('./api-v2/relay')
 
 let ethereumMgr = new EthereumMgr()
-let relayHandler = new RelayHandler(ethereumMgr)
+let metaTxMgr = new MetaTxMgr(ethereumMgr)
+let relayHandler = new RelayHandler(ethereumMgr,metaTxMgr)
 
 module.exports.relay = (event, context, callback) => { preHandler(relayHandler,event,context,callback) }
 

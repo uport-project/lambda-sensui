@@ -1,29 +1,22 @@
 import networks from './networks'
-import { TxRelay } from 'uport-identity'
 import Web3 from 'web3'
-import Contract from 'truffle-contract'
 import Promise from 'bluebird'
-import { Client, Pool } from 'pg'
-import { signers, generators } from 'eth-signer'
-import Transaction from 'ethereumjs-tx'
+import { signers } from 'eth-signer'
 
-const TxRelaySigner = signers.TxRelaySigner
+import { Client } from 'pg'
+
 const HDSigner = signers.HDSigner
-
-
-const txRelayArtifact = TxRelay.v2
 
 const DEFAULT_GAS_PRICE = 20000000000 // 20 Gwei
 
 class EthereumMgr {
-
 
   constructor() {
     this.pgUrl=null
     this.seed=null
 
     this.web3s = {}
-    this.txRelays = {}
+    
     this.gasPrice = DEFAULT_GAS_PRICE
 
     for (const network in networks) {
@@ -42,27 +35,88 @@ class EthereumMgr {
       this.pgUrl=secrets.PG_URL;
       this.seed=secrets.SEED;
   
-      this.pool = new Pool({
-        connectionString: this.pgUrl,
-      })
-
       const hdPrivKey = generators.Phrase.toHDPrivateKey(this.seed)
       this.signer = new HDSigner(hdPrivKey)
   
-    }
+  }
+
+  getProvider(networkName) {
+    return this.web3s[networkName].currentProvider
+  }  
 
   async getBalance(address, networkName) {
     return await this.web3s[networkName].eth.getBalanceAsync(address)
   }
 
+  async getGasPrice(networkName) {
+    try {
+      this.gasPrice = (await this.web3s[networkName].eth.getGasPriceAsync()).toNumber()
+    } catch (e) {
+      console.log(e)
+    }
+    return this.gasPrice
+  }
+
+  async getNonce(address, networkName) {
+    if(!address) throw('no address')    
+    if(!networkName) throw('no networkName')    
+    if(!this.pgUrl) throw('no pgUrl set')
+
+    const client = new Client({
+        connectionString: this.pgUrl,
+    })
+
+    try{
+        await client.connect()
+        const res=await client.query(
+            "UPDATE nonces \
+                SET nonce = nonce + 1 \
+              WHERE address = $1 AND network=$2 \
+            RETURNING nonce;"
+            , [address, networkName]);
+        return res.rows[0] ? res.row[0] : 0;
+    } catch (e){
+        throw(e);
+    } finally {
+        await client.end()
+    }
+  }
+ 
+
+  async signTx({txHex, blockchain}) {
+    let tx = new Transaction(Buffer.from(txHex, 'hex'))
+    // TODO - set correct gas Limit
+    tx.gasLimit = 3000000
+    tx.gasPrice = await this.getGasPrice(blockchain)
+    
+    tx.nonce = await this.getNonce(this.signer.getAddress(), blockchain)
+    
+    const rawTx = tx.serialize().toString('hex')
+    return new Promise((resolve, reject) => {
+      this.signer.signRawTx(rawTx, (error, signedRawTx) => {
+        if (error) {
+          reject(error)
+        }
+        resolve(signedRawTx)
+      })
+    })
+  }
+
+  async sendRawTransaction(signedRawTx, networkName) {
+    return await this.web3s[networkName].eth.sendRawTransactionAsync(signedRawTx)
+  }
+
+/*
   async getDatabaseNonce(address, networkName) {
     if (!address) throw ('no address')
     if (!networkName) throw ('no networkName')
 
-    const { rows } = await this.pool.query('SELECT nonce FROM nonces WHERE address = $1 and network=$2', [address, networkName])
+    const { rows } = await this.pool.query()
 
     return rows[0] ? rows[0].nonce : 0
   }
+
+
 
   async insertDatabaseNonce(address, networkName, nonce, mode='insert'){
     if (!address) throw ('no address')
@@ -98,66 +152,9 @@ class EthereumMgr {
     return nonce
   }
 
-  async sendRawTransaction(signedRawTx, networkName) {
-    return await this.web3s[networkName].eth.sendRawTransactionAsync(signedRawTx)
-  }
-
-  async getGasPrice(networkName) {
-    try {
-      this.gasPrice = (await this.web3s[networkName].eth.getGasPriceAsync()).toNumber()
-    } catch (e) {
-      console.log(e)
-    }
-    return this.gasPrice
-  }
-
-  async getRelayNonce(address, networkName) {
-    await this.initTxRelay(networkName)
-    let nonce = await this.txRelays[networkName].getNonce(address)
-    return nonce.toString()
-  }
-
-  async getRelayAddress(networkName) {
-    await this.initTxRelay(networkName)
-    return this.txRelays[networkName].address
-  }
-
-  async initTxRelay(networkName) {
-    if (!this.txRelays[networkName]) {
-      let TxRelayContract = new Contract(txRelayArtifact)
-      TxRelayContract.setProvider(this.web3s[networkName].currentProvider)
-      this.txRelays[networkName] = await TxRelayContract.deployed()
-    }
-  }
-
-  async signTx({metaSignedTx, blockchain}) {
-    let tx = new Transaction(Buffer.from(metaSignedTx, 'hex'))
-    tx.nonce = await this.getNonce(this.signer.getAddress(), blockchain)
-    // TODO - set correct gas Limit
-    tx.gasLimit = 3000000
-    tx.gasPrice = await this.getGasPrice(blockchain)
-    const rawTx = tx.serialize().toString('hex')
-    return new Promise((resolve, reject) => {
-      this.signer.signRawTx(rawTx, (error, signedRawTx) => {
-        if (error) {
-          reject(error)
-        }
-        resolve(signedRawTx)
-      })
-    })
-  }
-
-  async isMetaSignatureValid({metaSignedTx, blockchain}) {
-    const decodedTx = TxRelaySigner.decodeMetaTx(metaSignedTx)
-    const relayAddress = await this.getRelayAddress(blockchain)
-    const nonce = await this.getRelayNonce(decodedTx.claimedAddress, blockchain)
-    const validMetaSig = TxRelaySigner.isMetaSignatureValid(relayAddress, decodedTx, nonce)
-    return validMetaSig
-  }
-
-  async closePool() {
-    this.pool.end()
-  }
+ */
+ 
+ 
 }
 
 module.exports = EthereumMgr

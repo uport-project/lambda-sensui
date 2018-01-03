@@ -1,19 +1,12 @@
 
-function stripHexPrefix(str) {
-  if (str.startsWith('0x')) {
-    return str.slice(2)
-  }
-  return str
-}
 
 class RelayHandler {
-  constructor (ethereumMgr) {
+  constructor (ethereumMgr,metaTxMgr) {
     this.ethereumMgr = ethereumMgr
+    this.metaTxMgr = metaTxMgr
   }
 
   async handle(event, context, cb) {
-    //Parse body
-
     let body;
 
     if (event && !event.body){
@@ -44,18 +37,25 @@ class RelayHandler {
     }
    
     // support hex strings starting with 0x
-    body.metaSignedTx = stripHexPrefix(body.metaSignedTx)
-    if (!(await this.ethereumMgr.isMetaSignatureValid(body))) {
-      cb({code: 403, message: 'Meta signature invalid'})
+    if (body.metaSignedTx.startsWith('0x')) {
+      body.metaSignedTx= body.metaSignedTx.slice(2)
+    }
+
+    //Check if metaTx signature is valid
+    if (!(await this.metaTxMgr.isMetaSignatureValid(body))) {
+      cb({code: 403, message: 'MetaTx signature invalid'})
       return;
     }
 
 
     let signedRawTx;
     try{
-      signedRawTx = await this.ethereumMgr.signTx(body)
+      signedRawTx = await this.ethereumMgr.signTx({
+        txHex:body.metaSignedTx, 
+        blockchain: body.blockchain
+      })
     } catch(err) {
-      console.log("Error on this.ethereumMgr.signTx")
+      console.log("Error on this.metaTxMgr.signTx")
       console.log(err)
       cb({ code: 500, message: err.message })
       return;
