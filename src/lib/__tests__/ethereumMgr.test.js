@@ -1,3 +1,10 @@
+jest.mock('pg')
+import { Client } from 'pg'
+let pgClientMock={
+    connect:jest.fn(),
+    end:jest.fn()
+}
+Client.mockImplementation(()=>{return pgClientMock});
 const EthereumMgr = require('../ethereumMgr')
 
 describe('EthereumMgr', () => {
@@ -140,7 +147,74 @@ describe('EthereumMgr', () => {
                 done()
             })
         });
-
     })
 
+
+    describe('getNonce()', () =>{
+        test('no address', (done) =>{
+            sut.getNonce(null,'network')
+            .then((resp)=> {
+                fail("shouldn't return"); done()
+            })
+            .catch( (err)=>{
+                expect(err).toEqual('no address')
+                done()
+            })
+        });
+
+        test('no networkName', (done) =>{
+            sut.getNonce('address',null)
+            .then((resp)=> {
+                fail("shouldn't return"); done()
+            })
+            .catch( (err)=>{
+                expect(err).toEqual('no networkName')
+                done()
+            })
+        });
+
+        test('throw exception', (done) =>{
+            pgClientMock.connect.mockImplementation(()=>{
+                throw("throwed error")
+            });
+            sut.getNonce('address','network')
+            .then((resp)=> {
+                fail("shouldn't return"); done()
+            })
+            .catch( (err)=>{
+                expect(err).toEqual('throwed error')
+                done()
+            })
+        });
+
+        test('happy path', (done) =>{
+            pgClientMock.connect=jest.fn()
+            pgClientMock.connect.mockClear()
+            pgClientMock.end.mockClear()
+            pgClientMock.query=jest.fn(()=>{ 
+                return Promise.resolve({
+                    rows:[{
+                        nonce: 10
+                    }]
+                })})
+            sut.getNonce('address','network')
+            .then((resp)=> {
+    
+                expect(pgClientMock.connect).toBeCalled()
+                expect(pgClientMock.query).toBeCalled()
+                expect(pgClientMock.query).toBeCalledWith(
+            "INSERT INTO nonces(address,network,nonce) \
+             VALUES ($1,$2,0) \
+        ON CONFLICT (address,network) DO UPDATE \
+              SET nonce = nonces.nonce + 1 \
+            WHERE nonces.address=$1 \
+              AND nonces.network=$2 \
+        RETURNING nonce;"
+               ,[ 'address', 'network']);
+                expect(pgClientMock.end).toBeCalled()
+                expect(resp).toEqual(10)
+                done()
+            })
+        });
+    })
 })
