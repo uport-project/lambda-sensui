@@ -28,11 +28,11 @@ class RelayHandler {
       return;
     }
     if (!body.metaSignedTx) {
-      cb ({code: 400, message: 'metaSignedTx paramter missing'})
+      cb ({code: 400, message: 'metaSignedTx parameter missing'})
       return;
     }
     if (!body.blockchain) {
-      cb ({code: 400, message: 'blockchain paramter missing'})
+      cb ({code: 400, message: 'blockchain parameter missing'})
       return;
     }
    
