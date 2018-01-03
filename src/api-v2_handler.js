@@ -59,5 +59,3 @@ const doHandler = (handler, event, context, callback) => {
   })
 
 }
-
-module.exports.endPool = ethereumMgr.closePool.bind(ethereumMgr)

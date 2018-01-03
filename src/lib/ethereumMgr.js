@@ -1,7 +1,7 @@
 import networks from './networks'
 import Web3 from 'web3'
 import Promise from 'bluebird'
-import { signers } from 'eth-signer'
+import { generators, signers } from 'eth-signer'
 
 import { Client } from 'pg'
 
