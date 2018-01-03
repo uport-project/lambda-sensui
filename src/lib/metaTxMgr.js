@@ -1,7 +1,6 @@
 import { TxRelay } from 'uport-identity'
 import Contract from 'truffle-contract'
 import { signers } from 'eth-signer'
-import Transaction from 'ethereumjs-tx'
 
 const txRelayArtifact = TxRelay.v2
 const TxRelaySigner = signers.TxRelaySigner

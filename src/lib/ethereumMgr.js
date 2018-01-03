@@ -2,6 +2,8 @@ import networks from './networks'
 import Web3 from 'web3'
 import Promise from 'bluebird'
 import { generators, signers } from 'eth-signer'
+import Transaction from 'ethereumjs-tx'
+
 
 import { Client } from 'pg'
 

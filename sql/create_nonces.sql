@@ -4,7 +4,7 @@
 
 CREATE TABLE public.nonces
 (
-    address VARCHAR(100) NOT NULL, --Funding account address
+    address VARCHAR(44) NOT NULL, --Funding account address
     network VARCHAR(64), -- Network name
     nonce integer, --Nonce
     CONSTRAINT nonces_pkey PRIMARY KEY (address,network)

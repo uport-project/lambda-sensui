@@ -55,7 +55,7 @@ class RelayHandler {
         blockchain: body.blockchain
       })
     } catch(err) {
-      console.log("Error on this.metaTxMgr.signTx")
+      console.log("Error on this.ethereumMgr.signTx")
       console.log(err)
       cb({ code: 500, message: err.message })
       return;
