@@ -1,17 +1,33 @@
 'use strict'
+const AWS = require('aws-sdk');
 
-const RelayHandler = require('./api-v2/relay')
 const EthereumMgr = require('./lib/ethereumMgr')
+const MetaTxMgr = require('./lib/metaTxMgr')
+const RelayHandler = require('./api-v2/relay')
 
-let ethereumMgr = new EthereumMgr(process.env.PG_URL)
-let relayHandler = new RelayHandler(ethereumMgr, process.env.SEED)
+let ethereumMgr = new EthereumMgr()
+let metaTxMgr = new MetaTxMgr(ethereumMgr)
+let relayHandler = new RelayHandler(ethereumMgr,metaTxMgr)
 
-module.exports.relay = (event, context, callback) => {
-  doHandler(relayHandler, event, context, callback)
+module.exports.relay = (event, context, callback) => { preHandler(relayHandler,event,context,callback) }
+
+const preHandler = (handler,event,context,callback) =>{
+  console.log(event)
+  if(!ethereumMgr.isSecretsSet()){
+    const kms = new AWS.KMS();
+    kms.decrypt({
+      CiphertextBlob: Buffer(process.env.SECRETS, 'base64')
+    }).promise().then(data => {
+      const decrypted = String(data.Plaintext)
+      ethereumMgr.setSecrets(JSON.parse(decrypted))
+      doHandler(handler,event,context,callback)
+    })
+  }else{
+    doHandler(handler,event,context,callback)
+  }
 }
 
 const doHandler = (handler, event, context, callback) => {
-  console.log(event)
   handler.handle(event, context, (err, resp) => {
     let response;
     if (err == null) {
@@ -42,5 +58,3 @@ const doHandler = (handler, event, context, callback) => {
   })
 
 }
-
-module.exports.endPool = ethereumMgr.closePool.bind(ethereumMgr)

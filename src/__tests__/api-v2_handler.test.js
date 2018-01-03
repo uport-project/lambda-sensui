@@ -22,7 +22,7 @@ const SEED = bip39.generateMnemonic()
 process.env.SEED = SEED
 
 
-describe('lambda relay', () => {
+describe.skip('lambda relay', () => {
 
   let relay
   let endPool

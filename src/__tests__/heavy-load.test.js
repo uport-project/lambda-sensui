@@ -23,7 +23,7 @@ const LOG_NUMBER = 12341234
 const SEED = bip39.generateMnemonic()
 
 
-describe('lambda relay stress test', () => {
+describe.skip('lambda relay stress test', () => {
 
   let relay1
   let relay2
