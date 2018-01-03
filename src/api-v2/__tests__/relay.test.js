@@ -63,6 +63,18 @@ describe('RelayHandler', () => {
       })
     })
 
+    test('handle metaTxSigned with 0x', async()=>{
+      let event = {
+        body: JSON.stringify({ metaSignedTx: "0x123456789", blockchain: 'test' })
+      }
+      await sut.handle(event, {}, (err, res) => {
+        expect(metaTxMgr.isMetaSignatureValid).toBeCalledWith({
+          metaSignedTx: "123456789", 
+          blockchain: 'test'
+        })
+      })
+    })
+
     test('handle invalid metaSignedTx', async () => {
       let event = {
         body: JSON.stringify({ metaSignedTx: invalidMetaSignedTx, blockchain: 'test' })
