@@ -94,6 +94,8 @@ class EthereumMgr {
  
 
   async signTx({txHex, blockchain}) {
+    if(!txHex) throw('no txHex')    
+    if(!blockchain) throw('no blockchain')    
     let tx = new Transaction(Buffer.from(txHex, 'hex'))
     // TODO - set correct gas Limit
     tx.gasLimit = 3000000
@@ -112,6 +114,9 @@ class EthereumMgr {
   }
 
   async sendRawTransaction(signedRawTx, networkName) {
+    if(!signedRawTx) throw('no signedRawTx')    
+    if(!networkName) throw('no networkName')    
+    
     if (!signedRawTx.startsWith('0x')) {
       signedRawTx= '0x'+signedRawTx
     }
