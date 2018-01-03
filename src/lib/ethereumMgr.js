@@ -3,8 +3,6 @@ import Web3 from 'web3'
 import Promise from 'bluebird'
 import { generators, signers } from 'eth-signer'
 import Transaction from 'ethereumjs-tx'
-
-
 import { Client } from 'pg'
 
 const HDSigner = signers.HDSigner
@@ -19,13 +17,15 @@ class EthereumMgr {
 
     this.web3s = {}
     
-    this.gasPrice = DEFAULT_GAS_PRICE
+    this.gasPrices = {}
 
     for (const network in networks) {
       let provider = new Web3.providers.HttpProvider(networks[network].rpcUrl)
       let web3 = new Web3(provider)
       web3.eth = Promise.promisifyAll(web3.eth)
       this.web3s[network] = web3
+
+      this.gasPrices[network]= DEFAULT_GAS_PRICE;
     }
   }
 
@@ -43,20 +43,25 @@ class EthereumMgr {
   }
 
   getProvider(networkName) {
+    if(!this.web3s[networkName]) return null;
     return this.web3s[networkName].currentProvider
   }  
 
   async getBalance(address, networkName) {
+    if(!address) throw('no address')
+    if(!networkName) throw('no networkName')
+    if(!this.web3s[networkName]) throw('no web3 for networkName')
     return await this.web3s[networkName].eth.getBalanceAsync(address)
   }
 
   async getGasPrice(networkName) {
+    if(!networkName) throw('no networkName')
     try {
-      this.gasPrice = (await this.web3s[networkName].eth.getGasPriceAsync()).toNumber()
+      this.gasPrices[networkName] = (await this.web3s[networkName].eth.getGasPriceAsync()).toNumber()
     } catch (e) {
       console.log(e)
     }
-    return this.gasPrice
+    return this.gasPrices[networkName]
   }
 
   async getNonce(address, networkName) {
