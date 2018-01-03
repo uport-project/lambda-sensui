@@ -1,8 +1,6 @@
 machine:
   node:
     version: v6.1.0
-  services:
-    - docker
 
 dependencies:
   pre:
@@ -10,10 +8,6 @@ dependencies:
   override:
     - npm install --no-optional
     - npm install -g serverless@1.25.0
-
-test:
-  override:
-    - sh ./run_tests.sh
 
 deployment:
   develop:
