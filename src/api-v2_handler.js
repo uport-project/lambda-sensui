@@ -28,7 +28,6 @@ const preHandler = (handler,event,context,callback) =>{
 }
 
 const doHandler = (handler, event, context, callback) => {
-  console.log(event)
   handler.handle(event, context, (err, resp) => {
     let response;
     if (err == null) {
