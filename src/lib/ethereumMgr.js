@@ -69,12 +69,15 @@ class EthereumMgr {
     try{
         await client.connect()
         const res=await client.query(
-            "UPDATE nonces \
-                SET nonce = nonce + 1 \
-              WHERE address = $1 AND network=$2 \
-            RETURNING nonce;"
+            "INSERT INTO nonces(address,network,nonce) \
+             VALUES ($1,$2,0) \
+        ON CONFLICT (address,network) DO UPDATE \
+              SET nonce = nonces.nonce + 1 \
+            WHERE nonces.address=$1 \
+              AND nonces.network=$2 \
+        RETURNING nonce;"
             , [address, networkName]);
-        return res.rows[0] ? res.row[0] : 0;
+        return res.rows[0];
     } catch (e){
         throw(e);
     } finally {
