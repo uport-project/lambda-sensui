@@ -23,10 +23,6 @@ class RelayHandler {
       return;
     }
 
-    if (!body) {
-      cb({code: 400, message: 'no json body'})
-      return;
-    }
     if (!body.metaSignedTx) {
       cb ({code: 400, message: 'metaSignedTx parameter missing'})
       return;

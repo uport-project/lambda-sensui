@@ -41,6 +41,15 @@ describe('RelayHandler', () => {
       })
     })
 
+    test('handle no json body', async () => {
+
+      await sut.handle({body: 'notjson'}, null, (err, res) => {
+        expect(err).not.toBeNull()
+        expect(err.code).toEqual(400)
+        expect(err.message).toEqual('no json body')
+      })
+    })
+
     test('handle no metaSignedTx', async () => {
       let event = {
         body: JSON.stringify({ blockchain: "test" })
