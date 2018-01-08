@@ -4,10 +4,9 @@
   "description": "uPort tx funding service",
   "main": "index.js",
   "scripts": {
-    "preparedb": "docker-compose kill  db && docker-compose up -d",
     "test": "jest --verbose --runInBand",
-    "test-docker": "npm run preparedb &&  npm run jest",
-    "coverage": "jest --coverage"
+    "coverage": "jest --coverage",
+    "tdd": "jest --watchAll"
   },
   "repository": {
     "type": "git",
