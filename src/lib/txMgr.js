@@ -27,7 +27,10 @@ class TxMgr {
 
   async decode(_tx){
     if(!_tx) throw('no tx')    
-    if(typeof _tx != Transaction) throw('no Transaction')    
+    if(typeof _tx !== 'Transaction') {
+        throw(typeof _tx)
+
+    }    
     
     let from = '0x' + _tx.getSenderAddress().toString('hex')
     let to = TxUtil.bufferToHex(_tx.to)

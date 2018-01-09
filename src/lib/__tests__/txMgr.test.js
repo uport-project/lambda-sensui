@@ -89,7 +89,8 @@ describe('TxMgr', () => {
         });
 
         test('happy path', (done) =>{
-            let txObj = new Transaction(validTx)
+            let txObj = new Transaction('0x'+validTx)
+            expect(typeof txObj).toEqual('Transaction')
             sut.decode(txObj)
             .then((resp)=> {
                 expect(resp.from).toEqual('0x0')
