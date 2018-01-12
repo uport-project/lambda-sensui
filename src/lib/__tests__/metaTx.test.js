@@ -186,8 +186,56 @@ describe('MetaTxMgr', () => {
                 done()
             })
         })
-
-
     })
 
+
+
+    describe('getMetaTxFrom()', () => {
+        test('no metaSignedTx', (done) =>{
+            sut.getMetaTxFrom({blockchain:'network'})
+            .then((resp)=> {
+                fail("shouldn't return"); done()
+            })
+            .catch( (err)=>{
+                expect(err).toEqual('no metaSignedTx')
+                done()
+            })
+        })
+
+        test('no blockchain', (done) =>{
+            sut.getMetaTxFrom({metaSignedTx: invalidMetaSignedTx})
+            .then((resp)=> {
+                fail("shouldn't return"); done()
+            })
+            .catch( (err)=>{
+                expect(err).toEqual('no blockchain')
+                done()
+            })
+        })
+
+        test('bad metaSignedTx', (done) =>{
+            sut.getMetaTxFrom({metaSignedTx: 'badtx',blockchain: 'network'})
+            .then((resp)=> {
+                fail("shouldn't return"); done()
+            })
+            .catch( (err)=>{
+                expect(err.toString()).toEqual('TypeError: Invalid hex string')
+                done()
+            })
+        })
+
+        test('happyPath', (done) =>{
+            sut.getMetaTxFrom({metaSignedTx: validMetaSignedTx,blockchain: 'network'})
+            .then((resp)=> {
+                expect(resp).toEqual('0xe4c7b7aba88156a3caf4c7bdaf5d3cbd6229081b');done()
+            })
+            .catch( (err)=>{
+                fail(err.toString())
+                done()
+            })
+        })
+
+        
+
+    })
 })

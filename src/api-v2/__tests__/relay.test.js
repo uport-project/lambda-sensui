@@ -12,19 +12,24 @@ const invalidClaimedAddress = '0xd9a943e9569cb4fab09f66f6fa1adf965ad57973'
 describe('RelayHandler', () => {
 
   let sut
+  let authMgr
   let ethereumMgr
   let metaTxMgr
 
   beforeAll(() => {
+    authMgr = {
+      verifyNisaba: jest.fn()
+    }
     metaTxMgr = {
-      isMetaSignatureValid: jest.fn()
+      isMetaSignatureValid: jest.fn(),
+      getMetaTxFrom: jest.fn()
     }
 
     ethereumMgr = {
       signTx: jest.fn(),
       sendRawTransaction: jest.fn()
     }
-    sut = new RelayHandler(ethereumMgr,metaTxMgr)
+    sut = new RelayHandler(authMgr,ethereumMgr,metaTxMgr)
   })
 
   test('empty constructor', () => {
@@ -95,8 +100,24 @@ describe('RelayHandler', () => {
       })
     })
 
-    test('handle failed ethereumMgr.signTx', async () => {
+    test('handle token mismatch', async () => {
+      authMgr.verifyNisaba.mockImplementation(()=>{return {sub:'0xe4c7b7aba88156a3caf4c7bdaf5d3cbd6229081b'}})
       metaTxMgr.isMetaSignatureValid.mockImplementation(()=>{return true})
+      metaTxMgr.getMetaTxFrom.mockImplementation(()=>{return '0x'})
+      let event = {
+        body: JSON.stringify({ metaSignedTx: validMetaSignedTx, blockchain: 'test' })
+      }
+      
+      await sut.handle(event, {}, (err, res) => {
+        expect(err).not.toBeNull()
+        expect(err.code).toEqual(403)
+        expect(err.message).toEqual('Auth token mismatch. Does not match `from` field in metatx')
+      })
+    })
+
+
+    test('handle failed ethereumMgr.signTx', async () => {
+      metaTxMgr.getMetaTxFrom.mockImplementation(()=>{return '0xe4c7b7aba88156a3caf4c7bdaf5d3cbd6229081b'})
       ethereumMgr.signTx.mockImplementation(()=>{throw({message:'failed'})}) 
       let bodyRaw={ metaSignedTx: validMetaSignedTx, blockchain: 'test' }
       let event = {

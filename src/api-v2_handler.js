@@ -1,13 +1,15 @@
 'use strict'
 const AWS = require('aws-sdk');
 
+const AuthMgr = require('./lib/authMgr')
 const EthereumMgr = require('./lib/ethereumMgr')
 const MetaTxMgr = require('./lib/metaTxMgr')
 const RelayHandler = require('./api-v2/relay')
 
+let authMgr = new AuthMgr()
 let ethereumMgr = new EthereumMgr()
 let metaTxMgr = new MetaTxMgr(ethereumMgr)
-let relayHandler = new RelayHandler(ethereumMgr,metaTxMgr)
+let relayHandler = new RelayHandler(authMgr,ethereumMgr,metaTxMgr)
 
 module.exports.relay = (event, context, callback) => { preHandler(relayHandler,event,context,callback) }
 
