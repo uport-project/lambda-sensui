@@ -122,6 +122,17 @@ class EthereumMgr {
     }
     return await this.web3s[networkName].eth.sendRawTransactionAsync(signedRawTx)
   }
+
+  async sendTransaction(txObj,networkName){
+    if(!txObj) throw('no txObj')    
+    if(!networkName) throw('no networkName') 
+
+    let tx = new Transaction(txObj)
+    const rawTx = tx.serialize().toString('hex')
+    let signedRawTx = await this.signTx({txHex: rawTx, blockchain: networkName})
+    return await this.sendRawTransaction(signedRawTx,networkName);
+
+  }
  
 }
 
