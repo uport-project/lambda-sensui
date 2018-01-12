@@ -35,10 +35,15 @@ class MetaTxMgr {
     return nonce.toString()
   }
 
+  async decode(metaSignedTx) {
+    if(!metaSignedTx) throw('no metaSignedTx')
+    return TxRelaySigner.decodeMetaTx(metaSignedTx)
+  }
+
   async isMetaSignatureValid({metaSignedTx, blockchain}) {
     if(!metaSignedTx) throw('no metaSignedTx')
     if(!blockchain) throw('no blockchain')
-    const decodedTx = TxRelaySigner.decodeMetaTx(metaSignedTx)
+    const decodedTx = await this.decode(metaSignedTx);
     const relayerAddress = await this.getRelayerAddress(blockchain)
     const nonce = await this.getRelayNonce(decodedTx.claimedAddress, blockchain)
     const validMetaSig = TxRelaySigner.isMetaSignatureValid(relayerAddress, decodedTx, nonce)

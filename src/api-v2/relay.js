@@ -1,12 +1,23 @@
 
 
 class RelayHandler {
-  constructor (ethereumMgr,metaTxMgr) {
+  constructor (authMgr,ethereumMgr,metaTxMgr) {
+    this.authMgr = authMgr
     this.ethereumMgr = ethereumMgr
     this.metaTxMgr = metaTxMgr
   }
 
   async handle(event, context, cb) {
+    let authToken;
+    try{
+      authToken = await this.authMgr.verifyNisaba(event)
+    } catch(err) {
+      console.log("Error on this.authMgr.verifyNisaba")
+      console.log(err)
+      cb({ code: 401, message: err.message })
+      return;
+    }
+
     let body;
 
     if (event && !event.body){
@@ -43,6 +54,22 @@ class RelayHandler {
       return;
     }
 
+    let decodedTx;
+      try{
+        decodedTx = await this.metaTxMgr.decode(body.metaSignedTx)
+      } catch(err) {
+        console.log("Error on this.txMgr.decode")
+        console.log(err)
+        cb({ code: 400, message: err.message })
+        return;
+      }
+
+    //Verify auth and metaTx.from
+    if(authToken.sub !== decodedTx.from){
+      console.log("authToken.sub !== decodedTx.from")
+      cb({ code: 403, message: 'Auth token mismatch. Does not match `from` field in tx' })
+      return;
+    }
 
     let signedRawTx;
     try{
