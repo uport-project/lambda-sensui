@@ -54,20 +54,20 @@ class RelayHandler {
       return;
     }
 
-    let decodedTx;
+    let metaTxFrom;
       try{
-        decodedTx = await this.metaTxMgr.decode(body.metaSignedTx)
+        metaTxFrom = await this.metaTxMgr.getMetaTxFrom(body)
       } catch(err) {
-        console.log("Error on this.txMgr.decode")
+        console.log("Error on this.metaTxMgr.getMetaTxFrom")
         console.log(err)
-        cb({ code: 400, message: err.message })
+        cb({ code: 403, message: err.message })
         return;
       }
 
     //Verify auth and metaTx.from
-    if(authToken.sub !== decodedTx.from){
-      console.log("authToken.sub !== decodedTx.from")
-      cb({ code: 403, message: 'Auth token mismatch. Does not match `from` field in tx' })
+    if(authToken.sub !== metaTxFrom){
+      console.log("authToken.sub !== metaTxFrom")
+      cb({ code: 403, message: 'Auth token mismatch. Does not match `from` field in metatx' })
       return;
     }
 
