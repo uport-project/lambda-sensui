@@ -26,10 +26,9 @@ class TxMgr {
   }
 
   async decode(_tx){
-    if(!_tx) throw('no tx')    
-    if(typeof _tx !== 'Transaction') {
-        throw(typeof _tx)
-
+    if(!_tx) throw('no tx')   
+    if(typeof _tx !== 'object') {
+        throw("no Transaction")
     }    
     
     let from = '0x' + _tx.getSenderAddress().toString('hex')

@@ -325,6 +325,54 @@ describe('EthereumMgr', () => {
                 done()
             })
         });
-    
     })
+
+    describe('sendTransaction()', ()=> {
+        test('no txObj', (done) =>{
+            sut.sendTransaction(null,'network')
+            .then((resp)=> {
+                fail("shouldn't return"); done()
+            })
+            .catch( (err)=>{
+                expect(err).toEqual('no txObj')
+                done()
+            })
+        });
+
+        test('no networkName', (done) =>{
+            sut.sendTransaction({} ,null)
+            .then((resp)=> {
+                fail("shouldn't return"); done()
+            })
+            .catch( (err)=>{
+                expect(err).toEqual('no networkName')
+                done()
+            })
+        });
+
+        test.skip('happy path', (done) =>{
+            sut.signer.signRawTx=jest.fn()
+            sut.signer.signRawTx.mockImplementation((rawTx,cb)=>{
+                cb(null,'0xabcdef');
+            })
+            sut.web3s['network']={
+                eth:{
+                    sendRawTransactionAsync: jest.fn()
+                }
+            }
+            let txObj={
+                to:'0x1',
+                value:10
+            }
+            sut.sendRawTransaction(txObj ,'network')
+            .then((resp)=> {
+                expect(sut.web3s['network'].eth.sendRawTransactionAsync)
+                        .toBeCalledWith('0x')
+                done()
+            })
+        });
+
+    })
+
+
 })

@@ -1,11 +1,15 @@
 'use strict'
 const AWS = require('aws-sdk');
 
+const AuthMgr = require('./lib/authMgr')
+const TxMgr = require('./lib/txMgr')
 const EthereumMgr = require('./lib/ethereumMgr')
 const FundHandler = require('./api-v1/fund')
 
+let authMgr = new AuthMgr()
+let txMgr = new TxMgr()
 let ethereumMgr = new EthereumMgr()
-let fundHandler = new FundHandler(ethereumMgr)
+let fundHandler = new FundHandler(authMgr,txMgr,ethereumMgr)
 
 module.exports.fund = (event, context, callback) => { preHandler(fundHandler,event,context,callback) }
 
