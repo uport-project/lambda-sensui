@@ -190,9 +190,9 @@ describe('MetaTxMgr', () => {
 
 
 
-    describe('getMetaTxFrom()', () => {
+    describe('decodeMetaTx()', () => {
         test('no metaSignedTx', (done) =>{
-            sut.getMetaTxFrom({blockchain:'network'})
+            sut.decodeMetaTx(null)
             .then((resp)=> {
                 fail("shouldn't return"); done()
             })
@@ -202,19 +202,9 @@ describe('MetaTxMgr', () => {
             })
         })
 
-        test('no blockchain', (done) =>{
-            sut.getMetaTxFrom({metaSignedTx: invalidMetaSignedTx})
-            .then((resp)=> {
-                fail("shouldn't return"); done()
-            })
-            .catch( (err)=>{
-                expect(err).toEqual('no blockchain')
-                done()
-            })
-        })
 
         test('bad metaSignedTx', (done) =>{
-            sut.getMetaTxFrom({metaSignedTx: 'badtx',blockchain: 'network'})
+            sut.decodeMetaTx('badtx')
             .then((resp)=> {
                 fail("shouldn't return"); done()
             })
@@ -225,9 +215,9 @@ describe('MetaTxMgr', () => {
         })
 
         test('happyPath', (done) =>{
-            sut.getMetaTxFrom({metaSignedTx: validMetaSignedTx,blockchain: 'network'})
+            sut.decodeMetaTx(validMetaSignedTx)
             .then((resp)=> {
-                expect(resp).toEqual('0xe4c7b7aba88156a3caf4c7bdaf5d3cbd6229081b');done()
+                expect(resp.claimedAddress).toEqual('0xe4c7b7aba88156a3caf4c7bdaf5d3cbd6229081b');done()
             })
             .catch( (err)=>{
                 fail(err.toString())
