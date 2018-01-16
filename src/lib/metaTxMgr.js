@@ -44,9 +44,9 @@ class MetaTxMgr {
     if(!blockchain) throw('no blockchain')
     const decodedTx = TxRelaySigner.decodeMetaTx(metaSignedTx)
     const relayerAddress = await this.getRelayerAddress(blockchain)
-    const nonce = await this.getRelayNonce(decodedTx.claimedAddress, blockchain)
+    let nonce = await this.getRelayNonce(decodedTx.claimedAddress, blockchain)
     if (metaNonce !== undefined && metaNonce > nonce) {
-      nonce = metaNonce
+      nonce = metaNonce.toString()
     }
     const validMetaSig = TxRelaySigner.isMetaSignatureValid(relayerAddress, decodedTx, nonce)
     return validMetaSig
