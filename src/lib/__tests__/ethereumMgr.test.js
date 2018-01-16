@@ -350,6 +350,8 @@ describe('EthereumMgr', () => {
             })
         });
 
+        
+
         test.skip('happy path', (done) =>{
             sut.signer.signRawTx=jest.fn()
             sut.signer.signRawTx.mockImplementation((rawTx,cb)=>{
@@ -364,7 +366,7 @@ describe('EthereumMgr', () => {
                 to:'0x1',
                 value:10
             }
-            sut.sendRawTransaction(txObj ,'network')
+            sut.sendTransaction(txObj ,'network')
             .then((resp)=> {
                 expect(sut.web3s['network'].eth.sendRawTransactionAsync)
                         .toBeCalledWith('0x')
