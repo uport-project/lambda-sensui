@@ -15,7 +15,7 @@ module.exports.relay = (event, context, callback) => { preHandler(relayHandler,e
 
 const preHandler = (handler,event,context,callback) =>{
   console.log(event)
-  if(!ethereumMgr.isSecretsSet()){
+  if(!ethereumMgr.isSecretsSet() || !authMgr.isSecretsSet()){
     const kms = new AWS.KMS();
     kms.decrypt({
       CiphertextBlob: Buffer(process.env.SECRETS, 'base64')
