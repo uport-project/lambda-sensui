@@ -22,6 +22,7 @@ const preHandler = (handler,event,context,callback) =>{
     }).promise().then(data => {
       const decrypted = String(data.Plaintext)
       ethereumMgr.setSecrets(JSON.parse(decrypted))
+      authMgr.setSecrets(JSON.parse(decrypted))
       doHandler(handler,event,context,callback)
     })
   }else{
