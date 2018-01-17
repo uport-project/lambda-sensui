@@ -56,7 +56,7 @@ class RelayHandler {
 
     let decodedMetaTx;
       try{
-        decodedMetaTx = await this.metaTxMgr.decodedMetaTx(body.metaSignedTx)
+        decodedMetaTx = await this.metaTxMgr.decodeMetaTx(body.metaSignedTx)
       } catch(err) {
         console.log("Error on this.metaTxMgr.decodedMetaTx")
         console.log(err)
