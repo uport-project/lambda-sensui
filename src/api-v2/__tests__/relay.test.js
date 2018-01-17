@@ -22,7 +22,7 @@ describe('RelayHandler', () => {
     }
     metaTxMgr = {
       isMetaSignatureValid: jest.fn(),
-      decodedMetaTx: jest.fn()
+      decodeMetaTx: jest.fn()
     }
 
     ethereumMgr = {
@@ -103,7 +103,7 @@ describe('RelayHandler', () => {
     test('handle token mismatch', async () => {
       authMgr.verifyNisaba.mockImplementation(()=>{return {sub:'0xe4c7b7aba88156a3caf4c7bdaf5d3cbd6229081b'}})
       metaTxMgr.isMetaSignatureValid.mockImplementation(()=>{return true})
-      metaTxMgr.decodedMetaTx.mockImplementation(()=>{return {claimedAddress: '0x'}})
+      metaTxMgr.decodeMetaTx.mockImplementation(()=>{return {claimedAddress: '0x'}})
       let event = {
         body: JSON.stringify({ metaSignedTx: validMetaSignedTx, blockchain: 'test' })
       }
@@ -117,7 +117,7 @@ describe('RelayHandler', () => {
 
 
     test('handle failed ethereumMgr.signTx', async () => {
-      metaTxMgr.decodedMetaTx.mockImplementation(()=>{return {claimedAddress:'0xe4c7b7aba88156a3caf4c7bdaf5d3cbd6229081b'}})
+      metaTxMgr.decodeMetaTx.mockImplementation(()=>{return {claimedAddress:'0xe4c7b7aba88156a3caf4c7bdaf5d3cbd6229081b'}})
       ethereumMgr.signTx.mockImplementation(()=>{throw({message:'failed'})}) 
       let bodyRaw={ metaSignedTx: validMetaSignedTx, blockchain: 'test' }
       let event = {
