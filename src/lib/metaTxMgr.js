@@ -45,6 +45,7 @@ class MetaTxMgr {
     if (metaNonce !== undefined && metaNonce > nonce) {
       nonce = metaNonce.toString()
     }
+    console.log('nonce: ' + nonce)
     const validMetaSig = TxRelaySigner.isMetaSignatureValid(relayerAddress, decodedTx, nonce)
     return validMetaSig
   }
