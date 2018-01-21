@@ -33,7 +33,9 @@ class MetaTxMgr {
     if(!address) throw('no address')
     await this.initTxRelayer(networkName)
     let nonce = await this.txRelayers[networkName].getNonce(address)
-    return nonce.toString()
+    console.log('network nonce: ' + nonce)
+    console.log(typeof (nonce))
+    return nonce.toString(16)
   }
 
   async isMetaSignatureValid({metaSignedTx, blockchain, metaNonce}) {
@@ -45,7 +47,7 @@ class MetaTxMgr {
     if (metaNonce !== undefined && metaNonce > nonce) {
       nonce = metaNonce.toString()
     }
-    console.log('nonce: ' + nonce)
+    console.log('chosen nonce: ' + nonce)
     const validMetaSig = TxRelaySigner.isMetaSignatureValid(relayerAddress, decodedTx, nonce)
     return validMetaSig
   }
