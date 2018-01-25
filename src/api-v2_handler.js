@@ -47,7 +47,7 @@ const doHandler = (handler,event,context,callback) =>{
       if(err.code) code=err.code;
       let message=err;
       if(err.message) message=err.message;
-      
+
       response = {
         statusCode: code,
         body: JSON.stringify({

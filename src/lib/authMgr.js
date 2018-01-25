@@ -5,20 +5,20 @@ class AuthMgr {
     constructor() {
         this.nisabaPub=null
     }
-    
+
     isSecretsSet(){
         return (this.nisabaPub !== null);
     }
-    
+
     setSecrets(secrets){
         this.nisabaPub=secrets.NISABA_PUBKEY;
     }
-    
+
     async verifyNisaba(event){
         if(!event.headers) throw('no headers')
-        if(!event.headers['Authorization']) throw('no Authorization Header')    
-        if(!this.nisabaPub) throw('nisabaPub not set')   
-        
+        if(!event.headers['Authorization']) throw('no Authorization Header')
+        if(!this.nisabaPub) throw('nisabaPub not set')
+
         let authHead=event.headers['Authorization']
 
         let parts = authHead.split(' ')
@@ -49,7 +49,7 @@ class AuthMgr {
 
         // TODO verify: iat, exp, aud
         return dtoken.payload;
-  
+
     }
 }
 module.exports = AuthMgr
