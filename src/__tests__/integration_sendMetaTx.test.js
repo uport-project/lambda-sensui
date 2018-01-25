@@ -37,7 +37,7 @@ const SEED = bip39.generateMnemonic()
 process.env.SEED = SEED
 
 
-describe('apiV2Handler', () => {
+describe('send MetaTx integration tests', () => {
 
   let apiV2Handler
   let server
@@ -49,7 +49,7 @@ describe('apiV2Handler', () => {
   let senderKeyPair
 
   beforeAll(async () => {
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 8000
+    jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000
 
     const Plaintext = '{"SEED": "' + SEED + '", "PG_URL": "http://url"}'
     MockAWS.mock("KMS", "decrypt", Promise.resolve({Plaintext}));
@@ -110,7 +110,7 @@ describe('apiV2Handler', () => {
     })
   })
 
-  test('valid meta signature', async done => {
+  test('send valid meta transaction', async done => {
     let MetaTestRegistryContract = Contract(MetaTestRegistry)
     MetaTestRegistryContract.setProvider(server.provider)
     let metaTestReg = await MetaTestRegistryContract.new(txParams)
