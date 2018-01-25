@@ -16,7 +16,7 @@ class EthereumMgr {
     this.seed=null
 
     this.web3s = {}
-    
+
     this.gasPrices = {}
 
     for (const network in networks) {
@@ -34,18 +34,17 @@ class EthereumMgr {
   }
 
   setSecrets(secrets){
-      this.pgUrl=secrets.PG_URL;
-      this.seed=secrets.SEED;
-  
-      const hdPrivKey = generators.Phrase.toHDPrivateKey(this.seed)
-      this.signer = new HDSigner(hdPrivKey)
-  
+    this.pgUrl=secrets.PG_URL;
+    this.seed=secrets.SEED;
+
+    const hdPrivKey = generators.Phrase.toHDPrivateKey(this.seed)
+    this.signer = new HDSigner(hdPrivKey)
   }
 
   getProvider(networkName) {
     if(!this.web3s[networkName]) return null;
     return this.web3s[networkName].currentProvider
-  }  
+  }
 
   async getBalance(address, networkName) {
     if(!address) throw('no address')
@@ -64,9 +63,29 @@ class EthereumMgr {
     return this.gasPrices[networkName]
   }
 
+  async estimateGas(tx, from, networkName) {
+    if(!tx) throw('no tx object')
+    if(!networkName) throw('no networkName')
+
+    //let tx = new Transaction(Buffer.from(txHex, 'hex'))
+    let txCopy = {
+      nonce: '0x' + (tx.nonce.toString('hex') || 0),
+      gasPrice: '0x' + tx.gasPrice.toString('hex'),
+      to: '0x' + tx.to.toString('hex'),
+      value: '0x' + (tx.value.toString('hex') || 0),
+      data: '0x' + tx.data.toString('hex'),
+      from
+    }
+    let price = 3000000
+    try {
+      price = await this.web3s[networkName].eth.estimateGasAsync(txCopy)
+    } catch (error) {}
+    return price
+  }
+
   async getNonce(address, networkName) {
-    if(!address) throw('no address')    
-    if(!networkName) throw('no networkName')    
+    if(!address) throw('no address')
+    if(!networkName) throw('no networkName')
     if(!this.pgUrl) throw('no pgUrl set')
 
     const client = new Client({
@@ -91,17 +110,19 @@ class EthereumMgr {
         await client.end()
     }
   }
- 
+
 
   async signTx({txHex, blockchain}) {
-    if(!txHex) throw('no txHex')    
-    if(!blockchain) throw('no blockchain')    
+    if(!txHex) throw('no txHex')
+    if(!blockchain) throw('no blockchain')
     let tx = new Transaction(Buffer.from(txHex, 'hex'))
-    // TODO - set correct gas Limit
-    tx.gasLimit = 3000000
     tx.gasPrice = await this.getGasPrice(blockchain)
     tx.nonce = await this.getNonce(this.signer.getAddress(), blockchain)
-    
+    const estimatedGas = await this.estimateGas(tx, this.signer.getAddress(), blockchain)
+    // add some buffer to the limit
+    tx.gasLimit = estimatedGas + 1000
+    //console.log('limit', parseInt(tx.gasLimit.toString('hex'), 16))
+
     const rawTx = tx.serialize().toString('hex')
     return new Promise((resolve, reject) => {
       this.signer.signRawTx(rawTx, (error, signedRawTx) => {
@@ -114,9 +135,10 @@ class EthereumMgr {
   }
 
   async sendRawTransaction(signedRawTx, networkName) {
-    if(!signedRawTx) throw('no signedRawTx')    
-    if(!networkName) throw('no networkName')    
-    
+    if(!signedRawTx) throw('no signedRawTx')
+    if(!networkName) throw('no networkName')
+
+    console.log(signedRawTx)
     if (!signedRawTx.startsWith('0x')) {
       signedRawTx= '0x'+signedRawTx
     }
@@ -124,8 +146,8 @@ class EthereumMgr {
   }
 
   async sendTransaction(txObj,networkName){
-    if(!txObj) throw('no txObj')    
-    if(!networkName) throw('no networkName') 
+    if(!txObj) throw('no txObj')
+    if(!networkName) throw('no networkName')
 
     let tx = new Transaction(txObj)
     const rawTx = tx.serialize().toString('hex')
@@ -133,7 +155,7 @@ class EthereumMgr {
     return await this.sendRawTransaction(signedRawTx,networkName);
 
   }
- 
+
 }
 
 module.exports = EthereumMgr

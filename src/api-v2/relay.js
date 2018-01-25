@@ -42,7 +42,7 @@ class RelayHandler {
       cb ({code: 400, message: 'blockchain parameter missing'})
       return;
     }
-   
+
     // support hex strings starting with 0x
     if (body.metaSignedTx.startsWith('0x')) {
       body.metaSignedTx= body.metaSignedTx.slice(2)
@@ -74,7 +74,7 @@ class RelayHandler {
     let signedRawTx;
     try{
       signedRawTx = await this.ethereumMgr.signTx({
-        txHex:body.metaSignedTx, 
+        txHex:body.metaSignedTx,
         blockchain: body.blockchain
       })
     } catch(err) {
