@@ -31,6 +31,13 @@ custom:
   kmsSecrets: ${file(kms-secrets.${opt:stage, self:provider.stage}.${opt:region, self:provider.region}.yml)}
 
 functions:
+  fund:
+    handler: src/api-v1_handler.fund
+    description: Fund handler
+    events:
+     - http:
+         path: v1/fund
+         method: post
   relay:
     handler: src/api-v2_handler.relay
     description: Relay handler

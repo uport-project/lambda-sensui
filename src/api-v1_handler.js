@@ -2,27 +2,26 @@
 const AWS = require('aws-sdk');
 
 const AuthMgr = require('./lib/authMgr')
+const TxMgr = require('./lib/txMgr')
 const EthereumMgr = require('./lib/ethereumMgr')
-const MetaTxMgr = require('./lib/metaTxMgr')
-const RelayHandler = require('./api-v2/relay')
+const FundHandler = require('./api-v1/fund')
 
 let authMgr = new AuthMgr()
+let txMgr = new TxMgr()
 let ethereumMgr = new EthereumMgr()
-let metaTxMgr = new MetaTxMgr(ethereumMgr)
-let relayHandler = new RelayHandler(authMgr,ethereumMgr,metaTxMgr)
+let fundHandler = new FundHandler(authMgr,txMgr,ethereumMgr)
 
-module.exports.relay = (event, context, callback) => { preHandler(relayHandler,event,context,callback) }
+module.exports.fund = (event, context, callback) => { preHandler(fundHandler,event,context,callback) }
 
 const preHandler = (handler,event,context,callback) =>{
   console.log(event)
-  if(!ethereumMgr.isSecretsSet() || !authMgr.isSecretsSet()){
+  if(!ethereumMgr.isSecretsSet()){
     const kms = new AWS.KMS();
     kms.decrypt({
       CiphertextBlob: Buffer(process.env.SECRETS, 'base64')
     }).promise().then(data => {
       const decrypted = String(data.Plaintext)
       ethereumMgr.setSecrets(JSON.parse(decrypted))
-      authMgr.setSecrets(JSON.parse(decrypted))
       doHandler(handler,event,context,callback)
     })
   }else{
@@ -47,7 +46,7 @@ const doHandler = (handler,event,context,callback) =>{
       if(err.code) code=err.code;
       let message=err;
       if(err.message) message=err.message;
-
+      
       response = {
         statusCode: code,
         body: JSON.stringify({

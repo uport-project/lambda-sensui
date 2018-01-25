@@ -2,6 +2,7 @@ import { TxRelay } from 'uport-identity'
 import Contract from 'truffle-contract'
 import { signers } from 'eth-signer'
 
+
 const txRelayArtifact = TxRelay.v2
 const TxRelaySigner = signers.TxRelaySigner
 
@@ -32,17 +33,28 @@ class MetaTxMgr {
     if(!address) throw('no address')
     await this.initTxRelayer(networkName)
     let nonce = await this.txRelayers[networkName].getNonce(address)
-    return nonce.toString()
+    console.log('network nonce: ' + nonce)
+    console.log(typeof (nonce))
+    return nonce.toString(16)
   }
 
-  async isMetaSignatureValid({metaSignedTx, blockchain}) {
+  async isMetaSignatureValid({metaSignedTx, blockchain, metaNonce}) {
     if(!metaSignedTx) throw('no metaSignedTx')
     if(!blockchain) throw('no blockchain')
     const decodedTx = TxRelaySigner.decodeMetaTx(metaSignedTx)
     const relayerAddress = await this.getRelayerAddress(blockchain)
-    const nonce = await this.getRelayNonce(decodedTx.claimedAddress, blockchain)
+    let nonce = await this.getRelayNonce(decodedTx.claimedAddress, blockchain)
+    if (metaNonce !== undefined && metaNonce > nonce) {
+      nonce = metaNonce.toString()
+    }
+    console.log('chosen nonce: ' + nonce)
     const validMetaSig = TxRelaySigner.isMetaSignatureValid(relayerAddress, decodedTx, nonce)
     return validMetaSig
+  }
+
+  async decodeMetaTx(metaSignedTx) {
+    if(!metaSignedTx) throw('no metaSignedTx')
+    return TxRelaySigner.decodeMetaTx(metaSignedTx)
   }
 
 }
