@@ -160,7 +160,7 @@ describe('MetaTxMgr', () => {
                 fail("shouldn't return"); done()
             })
             .catch( (err)=>{
-                expect(err.toString()).toEqual('AssertionError [ERR_ASSERTION]: invalid remainder')
+                expect(err.toString()).toEqual('TypeError: Invalid hex string')
                 done()
             })
         })
@@ -232,7 +232,7 @@ describe('MetaTxMgr', () => {
                 fail("shouldn't return"); done()
             })
             .catch( (err)=>{
-                expect(err.toString()).toEqual('AssertionError [ERR_ASSERTION]: invalid remainder')
+                expect(err.toString()).toEqual('TypeError: Invalid hex string')
                 done()
             })
         })
