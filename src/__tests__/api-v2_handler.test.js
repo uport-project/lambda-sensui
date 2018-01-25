@@ -49,6 +49,8 @@ describe('apiV2Handler', () => {
   let senderKeyPair
 
   beforeAll(async () => {
+    jasmine.DEFAULT_TIMEOUT_INTERVAL = 8000
+
     const Plaintext = '{"SEED": "' + SEED + '", "PG_URL": "http://url"}'
     MockAWS.mock("KMS", "decrypt", Promise.resolve({Plaintext}));
     process.env.SECRETS="badSecret"
