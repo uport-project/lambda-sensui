@@ -63,12 +63,24 @@ class EthereumMgr {
     return this.gasPrices[networkName]
   }
 
-  async estimateGas(signedRawTx, networkName) {
-    if(!signedRawTx) throw('no signedRawTx')
+  async estimateGas(tx, from, networkName) {
+    if(!tx) throw('no tx object')
     if(!networkName) throw('no networkName')
 
-    let tx = new Transaction(Buffer.from(txHex, 'hex'))
-    return await this.web3s[networkName].eth.estimateGasAsync(tx)
+    //let tx = new Transaction(Buffer.from(txHex, 'hex'))
+    let txCopy = {
+      nonce: '0x' + (tx.nonce.toString('hex') || 0),
+      gasPrice: '0x' + tx.gasPrice.toString('hex'),
+      to: '0x' + tx.to.toString('hex'),
+      value: '0x' + (tx.value.toString('hex') || 0),
+      data: '0x' + tx.data.toString('hex'),
+      from
+    }
+    let price = 3000000
+    try {
+      price = await this.web3s[networkName].eth.estimateGasAsync(txCopy)
+    } catch (error) {}
+    return price
   }
 
   async getNonce(address, networkName) {
@@ -104,10 +116,12 @@ class EthereumMgr {
     if(!txHex) throw('no txHex')
     if(!blockchain) throw('no blockchain')
     let tx = new Transaction(Buffer.from(txHex, 'hex'))
-    // TODO - set correct gas Limit
-    tx.gasLimit = 3000000
     tx.gasPrice = await this.getGasPrice(blockchain)
     tx.nonce = await this.getNonce(this.signer.getAddress(), blockchain)
+    const estimatedGas = await this.estimateGas(tx, this.signer.getAddress(), blockchain)
+    // add some buffer to the limit
+    tx.gasLimit = estimatedGas + 1000
+    //console.log('limit', parseInt(tx.gasLimit.toString('hex'), 16))
 
     const rawTx = tx.serialize().toString('hex')
     return new Promise((resolve, reject) => {
