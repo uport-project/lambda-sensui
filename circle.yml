@@ -8,6 +8,11 @@ dependencies:
   override:
     - npm install --no-optional
     - npm install -g serverless@1.25.0
+    - npm install -g codecov
+
+test:
+  post:
+    - bash <(curl -s https://codecov.io/bash)
 
 deployment:
   develop:
