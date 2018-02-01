@@ -12,7 +12,20 @@
     "type": "git",
     "url": "git+https://github.com/uport-project/lambda-sensui.git"
   },
-  "author": "",
+  "contributors": [
+    {
+      "name": "Andres Junge",
+      "email": "andres.junge@consensys.net"
+    },
+    {
+      "name": "Cristobal Castillo",
+      "email": "cristobal.castillo@consensys.net"
+    },
+    {
+      "name": "Joel Torstensson",
+      "email": "joel.torstensson@consensys.net"
+    }
+  ],
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/uport-project/lambda-sensui/issues"
