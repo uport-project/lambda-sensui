@@ -32,16 +32,22 @@ custom:
 
 functions:
   fund:
-    handler: src/api-v1_handler.fund
+    handler: src/api_handler.fund
     description: Fund handler
     events:
      - http:
-         path: v1/fund
+         path: v1/fund #Legacy
+         method: post
+     - http:
+         path: fund
          method: post
   relay:
-    handler: src/api-v2_handler.relay
+    handler: src/api_handler.relay
     description: Relay handler
     events:
      - http:
-         path: v2/relay
+         path: v2/relay #Legacy
+         method: post
+     - http:
+         path: relay
          method: post
