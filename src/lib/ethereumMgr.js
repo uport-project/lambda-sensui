@@ -46,6 +46,10 @@ class EthereumMgr {
     return this.web3s[networkName].currentProvider
   }
 
+  getAddress(){
+    return this.signer.getAddress()
+  }
+
   async getBalance(address, networkName) {
     if(!address) throw('no address')
     if(!networkName) throw('no networkName')

@@ -39,7 +39,7 @@ process.env.SEED = SEED
 
 describe('send MetaTx integration tests', () => {
 
-  let apiV2Handler
+  let apiHandler
   let server
   let web3
   let user1
@@ -99,15 +99,7 @@ describe('send MetaTx integration tests', () => {
       address: txRelay.address,
       links: {}
     }
-    apiV2Handler = require('../api-v2_handler')
-  })
-
-  test('relay()', done => {
-    apiV2Handler.relay({},{},(err,res)=>{
-      expect(err).toBeNull()
-      expect(res).not.toBeNull()
-      done();
-    })
+    apiHandler = require('../api_handler')
   })
 
   test('send valid meta transaction', async done => {
@@ -142,7 +134,7 @@ describe('send MetaTx integration tests', () => {
         Authorization: 'Bearer' + validAuthToken
       }
     }
-    apiV2Handler.relay(event, null, async (err, response) => {
+    apiHandler.relay(event, null, async (err, response) => {
       expect(response).toMatchObject({
         statusCode: 200,
         body: expect.stringMatching(/{\"status\":\"success\",\"data\":\"0x/)
