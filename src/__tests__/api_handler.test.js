@@ -2,9 +2,9 @@ import AWS from "aws-sdk";
 import MockAWS from "aws-sdk-mock";
 MockAWS.setSDKInstance(AWS);
 
-const apiV1Handler = require('../api-v1_handler');
+const apiHandler = require('../api_handler');
 
-describe('apiV1Handler', () => {
+describe('apiHandler', () => {
 
     
     beforeAll(()=>{
@@ -13,7 +13,16 @@ describe('apiV1Handler', () => {
     })
 
     test('fund()', done => {
-        apiV1Handler.fund({},{},(err,res)=>{
+        apiHandler.fund({},{},(err,res)=>{
+            expect(err).toBeNull()
+            expect(res).not.toBeNull()
+            
+            done();
+        })
+    });
+
+    test('relay()', done => {
+        apiHandler.relay({},{},(err,res)=>{
             expect(err).toBeNull()
             expect(res).not.toBeNull()
             

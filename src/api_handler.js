@@ -3,14 +3,22 @@ const AWS = require('aws-sdk');
 
 const AuthMgr = require('./lib/authMgr')
 const EthereumMgr = require('./lib/ethereumMgr')
+const TxMgr = require('./lib/txMgr')
 const MetaTxMgr = require('./lib/metaTxMgr')
-const RelayHandler = require('./api-v2/relay')
+
+const FundHandler = require('./handlers/fund')
+const RelayHandler = require('./handlers/relay')
 
 let authMgr = new AuthMgr()
 let ethereumMgr = new EthereumMgr()
+let txMgr = new TxMgr(ethereumMgr)
 let metaTxMgr = new MetaTxMgr(ethereumMgr)
+
+let fundHandler = new FundHandler(authMgr,txMgr,ethereumMgr)
 let relayHandler = new RelayHandler(authMgr,ethereumMgr,metaTxMgr)
 
+
+module.exports.fund = (event, context, callback) => { preHandler(fundHandler,event,context,callback) }
 module.exports.relay = (event, context, callback) => { preHandler(relayHandler,event,context,callback) }
 
 const preHandler = (handler,event,context,callback) =>{
@@ -47,7 +55,7 @@ const doHandler = (handler,event,context,callback) =>{
       if(err.code) code=err.code;
       let message=err;
       if(err.message) message=err.message;
-
+      
       response = {
         statusCode: code,
         body: JSON.stringify({
