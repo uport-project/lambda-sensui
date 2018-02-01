@@ -5,7 +5,7 @@ module.exports = {
     },
     rinkeby: {
         master: 10000000000000000000,
-        develop: 5000000000000000000
+        develop: 50000000000000000000
     },
     kovan: {
         master: 0,

@@ -34,7 +34,7 @@ class CheckBalancesHandler {
 
                 let thresholdEth=Unit.fromWei(threshold, 'ether');
                 let balanceEth=Unit.fromWei(balanceWei, 'ether');
-                let text='Balance for *'+serviceName+'-'+stage+'* on '+rpcUrl+' below threshold!'
+                let text='Balance for *'+pack.name+'-'+stage+'* on '+rpcUrl+' below threshold!'
                 let addrUrl='<https://'+etherscanHost+'etherscan.io/address/'+addr+'|'+addr+'>'
 
                 let slackMsg={
@@ -46,7 +46,7 @@ class CheckBalancesHandler {
                       pretext: '<!here|here>: '+text,
                       "color": "danger",
                       "fields": [
-                        {"title": "Threshold (Wei)","value": threshold,"short": true},
+                        {"title": "Threshold (Wei)","value": threshold.toString(),"short": true},
                         {"title": "Threshold (Eth)","value": thresholdEth,"short": true},
                         {"title": "Balance (Wei)","value": balanceWei,"short": true},
                         {"title": "Balance (Eth)","value": balanceEth,"short": true}
