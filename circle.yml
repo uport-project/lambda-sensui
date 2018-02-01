@@ -11,6 +11,8 @@ dependencies:
     - npm install -g codecov
 
 test:
+  override:
+    - npm test && codecov
   post:
     - bash <(curl -s https://codecov.io/bash)
 
