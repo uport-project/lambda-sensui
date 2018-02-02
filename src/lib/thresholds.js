@@ -13,7 +13,7 @@ module.exports = {
     },
     ropsten: {
         master: 0,
-        develop: 0
+        develop: 5000000000000000000
     }
   }
   
