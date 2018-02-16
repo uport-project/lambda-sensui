@@ -1,4 +1,4 @@
-import { decodeToken, TokenVerifier } from 'jwt-js'
+import { decodeToken, TokenVerifier } from 'jsontokens'
 
 class AuthMgr {
 
