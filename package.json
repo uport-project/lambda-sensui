@@ -54,5 +54,9 @@
     "web3": "^0.20.3",
     "webpack": "^3.10.0",
     "webpack-node-externals": "^1.6.0"
+  },
+  "jest": {
+    "coverageDirectory": "./coverage/",
+    "collectCoverage": true
   }
 }
