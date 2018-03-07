@@ -6,7 +6,7 @@ class FundHandler {
       this.txMgr = txMgr
       this.ethereumMgr = ethereumMgr
     }
-  
+
     async handle(event, context, cb) {
 
       let authToken;
@@ -21,7 +21,7 @@ class FundHandler {
 
 
       let body;
-  
+
       if (event && !event.body){
         body = event
       } else if (event && event.body) {
@@ -35,7 +35,7 @@ class FundHandler {
         cb({code: 400, message: 'no json body'})
         return;
       }
-  
+
       if (!body.tx) {
         cb ({code: 400, message: 'tx parameter missing'})
         return;
@@ -44,12 +44,12 @@ class FundHandler {
         cb ({code: 400, message: 'blockchain parameter missing'})
         return;
       }
-     
+
       // support hex strings starting with 0x
       if (body.tx.startsWith('0x')) {
         body.tx= body.tx.slice(2)
       }
-      
+
 
       //Verify Tx
       let txObj;
@@ -89,7 +89,7 @@ class FundHandler {
         cb({ code: 500, message: err.message })
         return;
       }
-    
+
       if(decodedTx.gasPrice > (blockchainGasPrice * 50)){
         console.log("abusing gasPrice")
         cb({ code: 429, message: 'tx.gasPrice too high. Not funding.' })
@@ -134,11 +134,10 @@ class FundHandler {
         cb({ code: 500, message: err.message })
         return;
       }
-      
+
       cb (null,txHash)
       return;
     }
-  
+
   }
   module.exports = FundHandler
-  
