@@ -11,12 +11,13 @@ uPort tx funding service
 This endpoints tries to send funds to the address on the `from` field of the transaction.
 The `from` field needs to match with the `deviceKey` in the Authorization token.
 
-Sensui, does some limit check before actually sending the funds. If this limits are reached a `429 Too many connections` is returned
+Sensui, does some limit check before actually sending the funds. If sensui funds an attempt to abuse a `429 Too many connections` is returned
 
 The endpoint is private, only valid tokens from `nisaba` are allowed.
 
-#### Endpoints
+### Endpoints
 
+## Fund
 `POST /fund`
 
 #### Header
@@ -49,6 +50,7 @@ Authorization: Bearer <jwt token>
 }
 ```
 
+## Relay
 `POST /relay`
 
 #### Header
