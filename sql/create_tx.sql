@@ -10,7 +10,7 @@ CREATE TABLE public.tx
     tx_receipt JSONB NULL, --Transaction Receipt,
     created timestamp with time zone  NOT NULL DEFAULT now(), --Created on
     updated timestamp with time zone      NULL, --Updated on
-    CONSTRAINT tx PRIMARY KEY (tx_hash)
+    CONSTRAINT tx_pkey PRIMARY KEY (tx_hash)
 )
 WITH (
   OIDS=FALSE
