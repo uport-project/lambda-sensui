@@ -262,6 +262,44 @@ class EthereumMgr {
       await client.end();
     }
   }
+
+  async getTransactionReceipt(txHash, networkName) {
+    if (!txHash) throw "no txHash";
+    if (!networkName) throw "no networkName";
+    if (!this.web3s[networkName]) throw "no web3 for networkName";
+    const txReceipt = await this.web3s[networkName].eth.getTransactionReceiptAsync(txHash);
+    
+    await this.updateTx(txHash,networkName,txReceipt)
+
+    return txReceipt; 
+  }
+
+  async updateTx(txHash,networkName,txReceipt) {
+    if (!txHash) throw "no txHash";
+    if (!networkName) throw "no networkName";
+    if (!txReceipt) throw "no txReceipt";
+    if (!this.pgUrl) throw "no pgUrl set";
+
+    const client = new Client({
+      connectionString: this.pgUrl
+    });
+
+    try {
+      await client.connect();
+      const res = await client.query(
+        "UPDATE tx \
+                SET tx_receipt = $2, \
+                    updated = now() \
+              WHERE tx_hash = $1",
+        [txHash, txReceipt]
+      );
+    } catch (e) {
+      throw e;
+    } finally {
+      await client.end();
+    }
+  }
+
 }
 
 module.exports = EthereumMgr;
