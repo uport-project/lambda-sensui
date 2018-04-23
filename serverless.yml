@@ -58,3 +58,7 @@ functions:
       - schedule:
           rate: rate(10 minutes)
           enabled: true
+  fixNonces:
+    handler: src/script_handler.fixNonces
+    description: uPort fix for blockchain nonces against database stored nonce
+
