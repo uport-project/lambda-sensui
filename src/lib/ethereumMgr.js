@@ -151,9 +151,14 @@ class EthereumMgr {
     if (!signedRawTx.startsWith("0x")) {
       signedRawTx = "0x" + signedRawTx;
     }
-    return await this.web3s[networkName].eth.sendRawTransactionAsync(
+    const txHash=await this.web3s[networkName].eth.sendRawTransactionAsync(
       signedRawTx
     );
+
+    const txObj=new Transaction(signedRawTx);
+    await this.storeTx(txHash,networkName,txObj)
+
+    return txHash;
   }
 
   async sendTransaction(txObj, networkName) {
@@ -231,6 +236,31 @@ class EthereumMgr {
     if (!networkName) throw "no networkName";
     if (!this.web3s[networkName]) throw "no web3 for networkName";
     return await this.web3s[networkName].eth.getTransactionCountAsync(address);
+  }
+  
+
+  async storeTx(txHash,networkName,txObj) {
+    if (!txHash) throw "no txHash";
+    if (!networkName) throw "no networkName";
+    if (!txObj) throw "no txObj";
+    if (!this.pgUrl) throw "no pgUrl set";
+
+    const client = new Client({
+      connectionString: this.pgUrl
+    });
+
+    try {
+      await client.connect();
+      const res = await client.query(
+        "INSERT INTO tx(tx_hash, network,tx_options) \
+             VALUES ($1,$2,$3) ",
+        [txHash, networkName, txObj]
+      );
+    } catch (e) {
+      throw e;
+    } finally {
+      await client.end();
+    }
   }
 }
 

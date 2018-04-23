@@ -472,6 +472,11 @@ describe("EthereumMgr", () => {
           sendRawTransactionAsync: jest.fn()
         }
       };
+      
+      sut.web3s["network"].eth.sendRawTransactionAsync.mockImplementation((signedRawTx) => {
+        return "fakeHash";
+      });
+
       sut.sendRawTransaction(validSignedTx, "network").then(resp => {
         expect(sut.web3s["network"].eth.sendRawTransactionAsync).toBeCalledWith(
           "0x" + validSignedTx
@@ -486,6 +491,12 @@ describe("EthereumMgr", () => {
           sendRawTransactionAsync: jest.fn()
         }
       };
+
+      sut.web3s["network"].eth.sendRawTransactionAsync.mockImplementation((signedRawTx) => {
+        return "fakeHash";
+      });
+
+
       sut.sendRawTransaction("0x" + validSignedTx, "network").then(resp => {
         expect(sut.web3s["network"].eth.sendRawTransactionAsync).toBeCalledWith(
           "0x" + validSignedTx
