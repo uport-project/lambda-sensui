@@ -1,6 +1,4 @@
-
-import { decodeToken, TokenVerifier } from 'jsontokens'
-
+import { decodeToken, TokenVerifier } from "jsontokens";
 
 class AuthMgr {
   constructor() {
