@@ -152,16 +152,16 @@ class EthereumMgr {
     if (!signedRawTx.startsWith("0x")) {
       signedRawTx = "0x" + signedRawTx;
     }
-    const txHash=await this.web3s[networkName].eth.sendRawTransactionAsync(
+    const txHash = await this.web3s[networkName].eth.sendRawTransactionAsync(
       signedRawTx
     );
 
-    let txObj=Wallet.parseTransaction(signedRawTx);
-    txObj.gasLimit=txObj.gasLimit.toString(16);
-    txObj.gasPrice=txObj.gasPrice.toString();
-    txObj.value=txObj.value.toString(16);
-    
-    await this.storeTx(txHash,networkName,txObj)
+    let txObj = Wallet.parseTransaction(signedRawTx);
+    txObj.gasLimit = txObj.gasLimit.toString(16);
+    txObj.gasPrice = txObj.gasPrice.toString();
+    txObj.value = txObj.value.toString(16);
+
+    await this.storeTx(txHash, networkName, txObj);
 
     return txHash;
   }
@@ -242,9 +242,8 @@ class EthereumMgr {
     if (!this.web3s[networkName]) throw "no web3 for networkName";
     return await this.web3s[networkName].eth.getTransactionCountAsync(address);
   }
-  
 
-  async storeTx(txHash,networkName,txObj) {
+  async storeTx(txHash, networkName, txObj) {
     if (!txHash) throw "no txHash";
     if (!networkName) throw "no networkName";
     if (!txObj) throw "no txObj";
@@ -272,14 +271,16 @@ class EthereumMgr {
     if (!txHash) throw "no txHash";
     if (!networkName) throw "no networkName";
     if (!this.web3s[networkName]) throw "no web3 for networkName";
-    const txReceipt = await this.web3s[networkName].eth.getTransactionReceiptAsync(txHash);
-    
-    await this.updateTx(txHash,networkName,txReceipt)
+    const txReceipt = await this.web3s[
+      networkName
+    ].eth.getTransactionReceiptAsync(txHash);
 
-    return txReceipt; 
+    await this.updateTx(txHash, networkName, txReceipt);
+
+    return txReceipt;
   }
 
-  async updateTx(txHash,networkName,txReceipt) {
+  async updateTx(txHash, networkName, txReceipt) {
     if (!txHash) throw "no txHash";
     if (!networkName) throw "no networkName";
     if (!txReceipt) throw "no txReceipt";
@@ -304,7 +305,6 @@ class EthereumMgr {
       await client.end();
     }
   }
-
 }
 
 module.exports = EthereumMgr;
