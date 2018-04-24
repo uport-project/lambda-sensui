@@ -68,8 +68,10 @@ class FundHandler {
     }
 
     //Verify auth and tx.from
-    if (authToken.sub !== decodedTx.from) {
+    if (authToken.sub.toLowerCase() !== decodedTx.from.toLowerCase()) {
       console.log("authToken.sub !== decodedTx.from");
+      console.log("authToken.sub  :"+authToken.sub.toLowerCase());
+      console.log("decodedTx.from :"+decodedTx.from.toLowerCase());
       cb({
         code: 403,
         message: "Auth token mismatch. Does not match `from` field in tx"
