@@ -3,6 +3,7 @@ import Web3 from "web3";
 import Promise from "bluebird";
 import { generators, signers } from "eth-signer";
 import Transaction from "ethereumjs-tx";
+import { Wallet } from "ethers";
 import { Client } from "pg";
 
 const HDSigner = signers.HDSigner;
@@ -155,7 +156,11 @@ class EthereumMgr {
       signedRawTx
     );
 
-    const txObj=new Transaction(signedRawTx);
+    let txObj=Wallet.parseTransaction(signedRawTx);
+    txObj.gasLimit=txObj.gasLimit.toString(16);
+    txObj.gasPrice=txObj.gasPrice.toString();
+    txObj.value=txObj.value.toString(16);
+    
     await this.storeTx(txHash,networkName,txObj)
 
     return txHash;

@@ -481,6 +481,9 @@ describe("EthereumMgr", () => {
         expect(sut.web3s["network"].eth.sendRawTransactionAsync).toBeCalledWith(
           "0x" + validSignedTx
         );
+        expect(pgClientMock.connect).toBeCalled();
+        expect(pgClientMock.query).toBeCalled();
+        expect(pgClientMock.end).toBeCalled();
         done();
       });
     });
