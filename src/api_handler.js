@@ -8,6 +8,8 @@ const MetaTxMgr = require("./lib/metaTxMgr");
 
 const FundHandler = require("./handlers/fund");
 const RelayHandler = require("./handlers/relay");
+const CheckPendingHandler = require('./handlers/checkPending')
+
 
 let authMgr = new AuthMgr();
 let ethereumMgr = new EthereumMgr();
@@ -16,12 +18,17 @@ let metaTxMgr = new MetaTxMgr(ethereumMgr);
 
 let fundHandler = new FundHandler(authMgr, txMgr, ethereumMgr);
 let relayHandler = new RelayHandler(authMgr, ethereumMgr, metaTxMgr);
+let checkPendingHandler = new CheckPendingHandler(ethereumMgr)
+
 
 module.exports.fund = (event, context, callback) => {
   preHandler(fundHandler, event, context, callback);
 };
 module.exports.relay = (event, context, callback) => {
   preHandler(relayHandler, event, context, callback);
+};
+module.exports.checkPending = (event, context, callback) => {
+  preHandler(checkPendingHandler, event, context, callback);
 };
 
 const preHandler = (handler, event, context, callback) => {
