@@ -34,6 +34,7 @@ functions:
   fund:
     handler: src/api_handler.fund
     description: Fund handler
+    timeout: 30
     events:
      - http:
          path: v1/fund #Legacy
@@ -44,6 +45,7 @@ functions:
   relay:
     handler: src/api_handler.relay
     description: Relay handler
+    timeout: 30
     events:
      - http:
          path: v2/relay #Legacy
