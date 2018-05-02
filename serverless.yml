@@ -51,6 +51,13 @@ functions:
      - http:
          path: relay
          method: post
+  checkPending:
+    handler: src/api_handler.checkPending
+    description: uPort check if pending tx are mined
+    events:
+     - http:
+         path: checkPending
+         method: post
   checkBalances:
     handler: src/jobs_handler.checkBalances
     description: uPort check for balances on all address used and report if low funds
@@ -61,4 +68,3 @@ functions:
   fixNonces:
     handler: src/script_handler.fixNonces
     description: uPort fix for blockchain nonces against database stored nonce
-

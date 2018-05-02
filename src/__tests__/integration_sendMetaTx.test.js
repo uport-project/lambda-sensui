@@ -49,7 +49,7 @@ describe('send MetaTx integration tests', () => {
   let senderKeyPair
 
   beforeAll(async () => {
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000
+    jasmine.DEFAULT_TIMEOUT_INTERVAL = 80000
 
     const Plaintext = '{"SEED": "' + SEED + '", "PG_URL": "http://url"}'
     MockAWS.mock("KMS", "decrypt", Promise.resolve({Plaintext}));

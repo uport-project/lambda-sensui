@@ -3,6 +3,7 @@ import Web3 from "web3";
 import Promise from "bluebird";
 import { generators, signers } from "eth-signer";
 import Transaction from "ethereumjs-tx";
+import { Wallet } from "ethers";
 import { Client } from "pg";
 
 const HDSigner = signers.HDSigner;
@@ -151,9 +152,18 @@ class EthereumMgr {
     if (!signedRawTx.startsWith("0x")) {
       signedRawTx = "0x" + signedRawTx;
     }
-    return await this.web3s[networkName].eth.sendRawTransactionAsync(
+    const txHash = await this.web3s[networkName].eth.sendRawTransactionAsync(
       signedRawTx
     );
+
+    let txObj = Wallet.parseTransaction(signedRawTx);
+    txObj.gasLimit = txObj.gasLimit.toString(16);
+    txObj.gasPrice = txObj.gasPrice.toString();
+    txObj.value = txObj.value.toString(16);
+
+    await this.storeTx(txHash, networkName, txObj);
+
+    return txHash;
   }
 
   async sendTransaction(txObj, networkName) {
@@ -231,6 +241,96 @@ class EthereumMgr {
     if (!networkName) throw "no networkName";
     if (!this.web3s[networkName]) throw "no web3 for networkName";
     return await this.web3s[networkName].eth.getTransactionCountAsync(address);
+  }
+
+  async storeTx(txHash, networkName, txObj) {
+    if (!txHash) throw "no txHash";
+    if (!networkName) throw "no networkName";
+    if (!txObj) throw "no txObj";
+    if (!this.pgUrl) throw "no pgUrl set";
+
+    const client = new Client({
+      connectionString: this.pgUrl
+    });
+
+    try {
+      await client.connect();
+      const res = await client.query(
+        "INSERT INTO tx(tx_hash, network,tx_options) \
+             VALUES ($1,$2,$3) ",
+        [txHash, networkName, txObj]
+      );
+    } catch (e) {
+      throw e;
+    } finally {
+      await client.end();
+    }
+  }
+
+  async getTransactionReceipt(txHash, networkName) {
+    if (!txHash) throw "no txHash";
+    if (!networkName) throw "no networkName";
+    if (!this.web3s[networkName]) throw "no web3 for networkName";
+    const txReceipt = await this.web3s[
+      networkName
+    ].eth.getTransactionReceiptAsync(txHash);
+
+    await this.updateTx(txHash, networkName, txReceipt);
+
+    return txReceipt;
+  }
+
+  async updateTx(txHash, networkName, txReceipt) {
+    if (!txHash) throw "no txHash";
+    if (!networkName) throw "no networkName";
+    if (!txReceipt) throw "no txReceipt";
+    if (!this.pgUrl) throw "no pgUrl set";
+
+    const client = new Client({
+      connectionString: this.pgUrl
+    });
+
+    try {
+      await client.connect();
+      const res = await client.query(
+        "UPDATE tx \
+                SET tx_receipt = $2, \
+                    updated = now() \
+              WHERE tx_hash = $1",
+        [txHash, txReceipt]
+      );
+    } catch (e) {
+      throw e;
+    } finally {
+      await client.end();
+    }
+  }
+
+  async getPendingTx(networkName,age){
+    if (!networkName) throw "no networkName";
+    if (!age) throw "no age";
+    if (!this.pgUrl) throw "no pgUrl set";
+
+    const client = new Client({
+      connectionString: this.pgUrl
+    });
+
+    try {
+      await client.connect();
+      const res = await client.query(
+        "SELECT tx_hash \
+           FROM tx \
+          WHERE tx_receipt is NULL \
+            AND network = $1 \
+            AND created > now() - CAST ($2 AS INTERVAL)",
+        [networkName, age+' seconds']
+      );
+      return res;
+    } catch (e) {
+      throw e;
+    } finally {
+      await client.end();
+    }
   }
 }
 
