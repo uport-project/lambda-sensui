@@ -305,6 +305,33 @@ class EthereumMgr {
       await client.end();
     }
   }
+
+  async getPendingTx(networkName,age){
+    if (!networkName) throw "no networkName";
+    if (!age) throw "no age";
+    if (!this.pgUrl) throw "no pgUrl set";
+
+    const client = new Client({
+      connectionString: this.pgUrl
+    });
+
+    try {
+      await client.connect();
+      const res = await client.query(
+        "SELECT tx_hash \
+           FROM tx \
+          WHERE tx_receipt is NULL \
+            AND network = $1 \
+            AND created > now() - CAST ($2 AS INTERVAL)",
+        [networkName, age+' seconds']
+      );
+      return res;
+    } catch (e) {
+      throw e;
+    } finally {
+      await client.end();
+    }
+  }
 }
 
 module.exports = EthereumMgr;
