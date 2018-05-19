@@ -31,6 +31,8 @@ To learn more about Serverless Architectures with AWS Lambda, check out [this pu
 
 ### So How Does this All Come Together w/ lambda-sensui?
 
+### How do we start this up?
+
 ## API Description
 
 ### Fund address
