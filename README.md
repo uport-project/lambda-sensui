@@ -1,7 +1,7 @@
 # lambda-sensui
 The lambda-sensui repository consists of a tx funding service originally developed by the uPort team. The purpose of the service is to make transactions feeless for the end user, and forward those costs to the application itself, providing a much better user experience for the Ethereum-based Dapps. Feeless transactions for users is a mainstream expectation, as many consumers are not used to paying transaction fees on traditional applications, particularly not for things like form submission or logging in. By leveraging repositories like this one, you can develop a much more streamlined application UX for end-users, and make the use of your application more akin to the speed and simplicity of traditional apps (with the power of the blockchain of course!).
 
-The server uses the [AWS Node SDK](https://aws.amazon.com/sdk-for-node-js/) along with webpack and a few other helpful tools. The build leverages the [serverless framework](https://serverless.com/learn/) provided by [AWS Lambda](AWS Lambda lets you run code without provisioning or managing servers. You pay only for the compute time you consume - there is no charge when your code is not running.)
+The build leverages the [serverless framework](https://serverless.com/learn/) provided by [AWS Lambda](https://aws.amazon.com/lambda/)AWS Lambda lets you run code without provisioning or managing servers. You pay only for the compute time you consume - there is no charge when your code is not running.)
 
 [![CircleCI](https://circleci.com/gh/uport-project/lambda-sensui.svg?style=svg&circle-token=b2953f00d5cd866df70f0c221e2018e6ab6683b8)](https://circleci.com/gh/uport-project/lambda-sensui)
 
