@@ -36,6 +36,17 @@ To put it simply, this is out the Lambda Sensui server helps sheild front end da
 3. Signed transaction message is sent to the sensui server, which then commits the message on the blockchain and pays for the transaction. By using the serveless AWS lambda architecture, it is easy to set up our service to help do this (albeit, it is centralized). 
 4. User transaction complete!
 
+### How is the Repository Organized?
+The following list breakdown the folder architecture within the repository, explaining where everything is at (and what those part of the repository are responsible for). Hopefully, through this explanation, you can localize different parts of the repository that you want to change/fix/enhance: 
+1. **Serverless.yml** - Serverless.yml is the configuration the CLI uses to deploy your code to your provider of choice. The file denotes the entire architecture of the server, including the provider, the plugins, and the functions.
+
+2. **src folder** - all of the logic of the repo is stored here, particularly in the api_handler.js file. We will account for special files/folders in this path below: 
+- **api_handler** - central file with all of service's core functions (that result in the development of api calls for different functions)
+- **src/lib folder** - contains all of the needed scripts to enable the 'handler' files to work properly. Many of these scripts take care of interacting with the ethereum blockchain. 
+
+[To be Continued ... ]
+
+
 ### How do we start this up?
 1. Open your terminal and choose a folder path you'd like to store the project in 
 2. Use the command 'git clone [github repo url here]' to clone the project in that folder
