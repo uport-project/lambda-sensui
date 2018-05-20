@@ -30,8 +30,18 @@ Using AWS Lambda as the logic layer of a serverless application can enable faste
 To learn more about Serverless Architectures with AWS Lambda, check out [this publication](https://d1.awsstatic.com/whitepapers/serverless-architectures-with-aws-lambda.pdf) that goes through the whole build
 
 ### So How Does this All Come Together w/ lambda-sensui?
+To put it simply, this is out the Lambda Sensui server helps sheild front end dapp users from paying transaction costs: 
+1. User goes on application and registers a transaction (let's say their submitting a report, and they want to hash that report on chain). We don't want to have them need to pay any transaction costs of course!
+2. User signs the transaction (instead of paying for it) and creates a signed message, which includes the user's address and any information relevant to the submitted report. 
+3. Signed transaction message is sent to the sensui server, which then commits the message on the blockchain and pays for the transaction. By using the serveless AWS lambda architecture, it is easy to set up our service to help do this (albeit, it is centralized). 
+4. User transaction complete!
 
 ### How do we start this up?
+1. Open your terminal and choose a folder path you'd like to store the project in 
+2. Use the command 'git clone [github repo url here]' to clone the project in that folder
+3. Make sure that you have serverless on your computer if not, follow these steps: https://serverless.com/learn/quick-start/
+4. Make sure that you have a AWS IAM account (if not follow the guide in step 3 to completion to get familiar). 
+5. Once you have all your AWS dev credentials, and you have serverless on your computer, you should be able to use the 'sls deploy' command in your terminal (making sure to be in the same directory as the project). This will start up the server! Of course, to truly see it working in action, you will want to connect to one of your dapps to begin signing and forwarding signed messages to the server
 
 ## API Description
 
