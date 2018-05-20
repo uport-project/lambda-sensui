@@ -1,5 +1,15 @@
-service: lambda-sensui
+# serverless.yml
 
+# Serverless.yml is the configuration the CLI uses to deploy your code to
+# your provider of choice. The file denotes the entire architecture of the
+# server, including the provider, the plugins, and the functions.
+
+# Read the serverless docs here:
+# https://serverless.com/framework/docs/
+
+# The `service` block is the name of the service
+service: lambda-sensui
+# The `provider` block defines where your service will be deployed
 provider:
   name: aws
   runtime: nodejs6.10
@@ -14,7 +24,7 @@ provider:
       Action:
       - s3:*
       Resource: 'arn:aws:s3:::*'
-      
+
   environment:
       SECRETS: ${self:custom.kmsSecrets.secrets.SECRETS}
 
@@ -29,7 +39,7 @@ custom:
   serverless-kms-secrets:
     secretsFile: kms-secrets.${opt:stage, self:provider.stage}.${opt:region, self:provider.region}.yml
   kmsSecrets: ${file(kms-secrets.${opt:stage, self:provider.stage}.${opt:region, self:provider.region}.yml)}
-
+# The `functions` block defines what code to deploy
 functions:
   fund:
     handler: src/api_handler.fund
