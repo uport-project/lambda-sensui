@@ -1,7 +1,7 @@
 # lambda-sensui
 The lambda-sensui repository consists of a tx funding service originally developed by the uPort team. The purpose of the service is to make transactions feeless for the end user, and forward those costs to the application itself, providing a much better user experience for the Ethereum-based Dapps. Feeless transactions for users is a mainstream expectation, as many consumers are not used to paying transaction fees on traditional applications, particularly not for things like form submission or logging in. By leveraging repositories like this one, you can develop a much more streamlined application UX for end-users, and make the use of your application more akin to the speed and simplicity of traditional apps (with the power of the blockchain of course!).
 
-The build leverages the [serverless framework](https://serverless.com/learn/) provided by [AWS Lambda](https://aws.amazon.com/lambda/). AWS Lambda lets you run code without provisioning or managing servers. You pay only for the compute time you consume - there is no charge when your code is not running.)
+The build leverages the [serverless framework](https://serverless.com/learn/) provided by [AWS Lambda](https://aws.amazon.com/lambda/) and AWS S3 to save tx history. AWS Lambda lets you run code without provisioning or managing servers. You pay only for the compute time you consume - there is no charge when your code is not running.)
 
 [![CircleCI](https://circleci.com/gh/uport-project/lambda-sensui.svg?style=svg&circle-token=b2953f00d5cd866df70f0c221e2018e6ab6683b8)](https://circleci.com/gh/uport-project/lambda-sensui)
 
@@ -35,6 +35,17 @@ To put it simply, this is out the Lambda Sensui server helps sheild front end da
 2. User signs the transaction (instead of paying for it) and creates a signed message, which includes the user's address and any information relevant to the submitted report. 
 3. Signed transaction message is sent to the sensui server, which then commits the message on the blockchain and pays for the transaction. By using the serveless AWS lambda architecture, it is easy to set up our service to help do this (albeit, it is centralized). 
 4. User transaction complete!
+
+### How is the Repository Organized?
+The following list breakdown the folder architecture within the repository, explaining where everything is at (and what those part of the repository are responsible for). Hopefully, through this explanation, you can localize different parts of the repository that you want to change/fix/enhance: 
+1. **Serverless.yml** - Serverless.yml is the configuration the CLI uses to deploy your code to your provider of choice. The file denotes the entire architecture of the server, including the provider, the plugins, and the functions.
+
+2. **src folder** - all of the logic of the repo is stored here, particularly in the api_handler.js file. We will account for special files/folders in this path below: 
+- **api_handler** - central file with all of service's core functions (that result in the development of api calls for different functions)
+- **src/lib folder** - contains all of the needed scripts to enable the 'handler' files to work properly. Many of these scripts take care of interacting with the ethereum blockchain. 
+
+[To be Continued ... ]
+
 
 ### How do we start this up?
 1. Open your terminal and choose a folder path you'd like to store the project in 
