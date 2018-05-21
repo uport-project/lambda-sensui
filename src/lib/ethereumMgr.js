@@ -1,3 +1,33 @@
+/*
+file - ethereumMgr.js - manages interactions with ethereum across the board
+
+resources:
+- networks - the various ethereum networks using infura (where key is appended)
+
+- web3 - web3.js is a collection of libraries which allow you to interact with a local
+or remote ethereum node, using a HTTP or IPC connection
+https://github.com/ethereum/web3.js/
+
+- bluebird - third party promise library
+http://bluebirdjs.com/docs/getting-started.html
+
+- eth-signer - A minimal ethereum javascript signer used to sign and send meta tx
+https://github.com/ConsenSys/eth-signer
+
+- ethers - This library (which was made for and used by ethers.io) is designed to
+make it easier to write client-side JavaScript based wallets, keeping the private
+key on the owner’s machine at all times
+https://docs.ethers.io/ethers.js/html/api-wallet.html
+
+- pg - node-postgres is a collection of node.js modules for interfacing with your PostgreSQL
+database. It has support for callbacks, promises, async/await, connection pooling,
+prepared statements, cursors, streaming results, C/C++ bindings, rich type parsing,
+and more! Just like PostgreSQL itself there are a lot of features:
+this documentation aims to get you up and running quickly and in the right direction.
+It also tries to provide guides for more advanced & edge-case topics allowing you to
+tap into the full power of PostgreSQL from node.js.
+https://node-postgres.com/
+*/
 import networks from "./networks";
 import Web3 from "web3";
 import Promise from "bluebird";
@@ -6,6 +36,10 @@ import Transaction from "ethereumjs-tx";
 import { Wallet } from "ethers";
 import { Client } from "pg";
 
+/*
+from ethsigner library, https://github.com/ConsenSys/eth-signer/blob/master/lib/hd_signer.js
+takes in private key, creates simple signer
+*/
 const HDSigner = signers.HDSigner;
 
 const DEFAULT_GAS_PRICE = 20000000000; // 20 Gwei

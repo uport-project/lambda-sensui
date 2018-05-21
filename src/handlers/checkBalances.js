@@ -1,3 +1,17 @@
+/*
+file: checkBalances.js
+method: checkBalances
+needed parameters in url endpoint:
+- context in body
+
+activates fundhandler, which takes the following inputs (which are instatited
+at the top of the file):
+- ethereumMgr
+- slackMgr
+
+Purpose: this activates the handle method in handlers/checkBalances.js, which checks
+body context for address, stage, and blockchain entwork and sends back balance of address
+*/
 import networks from "../lib/networks";
 import thresholds from "../lib/thresholds";
 import pack from "../../package";

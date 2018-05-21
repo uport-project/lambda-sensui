@@ -29,6 +29,10 @@ provider:
       SECRETS: ${self:custom.kmsSecrets.secrets.SECRETS}
 
 # Use the serverless-webpack plugin to transpile ES6
+
+# serverless-kms-secrets: Serverless plugin to encrypt variables with KMS
+# A Serverless Plugin for the Serverless Framework which helps with
+# encrypting service secrets using the AWS Key Management Service (KMS)
 plugins:
   - serverless-webpack
   - serverless-kms-secrets
