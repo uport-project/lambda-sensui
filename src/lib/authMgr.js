@@ -5,10 +5,13 @@ the proper JWT and secret
 resource - jsontokens - https://www.npmjs.com/package/jsontokens
 
 resource description - node.js library for signing, decoding,
-and verifying JSON Web Tokens (JWTs), JSON Web Token (JWT) is a means of
-representing claims to be transferred between two parties. The claims in a
-JWT are encoded as a JSON object that is digitally signed using JSON Web
-Signature (JWS) and/or encrypted using JSON Web Encryption (JWE).
+and verifying JSON Web Tokens (JWTs) - more speficically, a JWT token signed
+by the nisaba service.
+
+JSON Web Token (JWT) is a means of representing claims to be transferred
+between two parties. The claims in a JWT are encoded as a JSON object
+that is digitally signed using JSON Web Signature (JWS) and/or encrypted
+using JSON Web Encryption (JWE).
 */
 import { decodeToken, TokenVerifier } from "jsontokens";
 
