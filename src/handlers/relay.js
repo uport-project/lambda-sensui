@@ -1,3 +1,23 @@
+/*
+
+file: relay.js
+method: relay
+needed parameters in url endpoint:
+- metaSignedTx
+- blockchain
+
+activates relayhandler, which takes the following inputs (which are instatited
+at the top of the file):
+- authMgr
+- ethereumMgr
+- metaTxMgr
+
+this activates the handle method in relay, which verifies the authorization authToken,
+parses through the event body, ensures that the metatx parameter is inside the body and
+see if its valid, check for blockchain parameter to see if its valid. Then it decodes
+the metatransaction, verifies auth.sub and decodedMetaTx.claimedAddress, it signs the
+raw transaction, and then it sends the raw, signed transaction
+*/
 class RelayHandler {
   constructor(authMgr, ethereumMgr, metaTxMgr) {
     this.authMgr = authMgr;

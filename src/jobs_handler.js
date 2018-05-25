@@ -10,6 +10,19 @@ let slackMgr = new SlackMgr();
 
 let checkBalances = new CheckBalancesHandler(ethereumMgr, slackMgr);
 
+/*
+method: checkBalances
+needed parameters in url endpoint:
+- context in body
+
+activates checkbalance, which takes the following inputs (which are instatited
+at the top of the file):
+- ethereumMgr
+- slackMgr
+
+Purpose: this activates the handle method in handlers/checkBalances.js, which checks
+body context for address, stage, and blockchain entwork and sends back balance of address
+*/
 module.exports.checkBalances = (event, context, callback) => {
   preHandler(checkBalances, event, context, callback);
 };

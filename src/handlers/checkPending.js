@@ -1,12 +1,27 @@
+/*
+file: checkPending.js
+method: checkPending
+needed parameters in url endpoint:
+- blockchain
+- age
 
+activates checkPendinghandler, which takes the following inputs (which are instatited
+at the top of the file):
+- authMgr
+- ethereumMgr
+- metaTxMgr
+
+Purpose: this activates the handle method in handlers/checkPending.js, which checks the
+pending transactions on chain and returns the tx receipts
+*/
 class CheckPendingHandler {
     constructor (ethereumMgr) {
       this.ethereumMgr = ethereumMgr
     }
-  
+
     async handle(event, context, cb) {
       let body;
-  
+
       if (event && !event.body){
         body = event
       } else if (event && event.body) {
@@ -20,7 +35,7 @@ class CheckPendingHandler {
         cb({code: 400, message: 'no json body'})
         return;
       }
-  
+
       if (!body.blockchain) {
         cb ({code: 400, message: 'blockchain parameter missing'})
         return;
@@ -30,11 +45,11 @@ class CheckPendingHandler {
       if (body.age) {
           age=body.age;
       }
-      
+
       let txHashes;
       try{
         console.log("calling ethereumMgr.getPendingTx")
-        const dbRes = await this.ethereumMgr.getPendingTx(body.blockchain,age) 
+        const dbRes = await this.ethereumMgr.getPendingTx(body.blockchain,age)
         txHashes = dbRes.rows;
       } catch(err) {
         console.log("Error on this.ethereumMgr.getPendingTx")
@@ -51,11 +66,11 @@ class CheckPendingHandler {
             this.ethereumMgr.getTransactionReceipt(row.tx_hash,body.blockchain)
         );
       })
-      
-      
+
+
       let promisesRes = await Promise.all(promises);
       //console.log(promisesRes);
-      
+
       cb(null, 'OK')
       return;
   }
