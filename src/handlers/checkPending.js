@@ -1,5 +1,5 @@
 /*
-file: checkPending.js 
+file: checkPending.js
 method: checkPending
 needed parameters in url endpoint:
 - blockchain
@@ -36,7 +36,7 @@ class CheckPendingHandler {
         return;
       }
 
-      if (!body.) {
+      if (!body.blockchain) {
         cb ({code: 400, message: 'blockchain parameter missing'})
         return;
       }
