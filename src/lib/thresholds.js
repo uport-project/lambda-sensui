@@ -1,3 +1,4 @@
+//set gas thresholds per network 
 module.exports = {
   mainnet: {
     master: 0,

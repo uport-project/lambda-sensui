@@ -1,11 +1,23 @@
+/*
+file - txMgr.js - getting transaction details and verifying tx 
+
+resources:
+- ethereumjs-tx - A simple module for creating, manipulating and signing ethereum transactions
+https://github.com/ethereumjs/ethereumjs-tx
+
+- ethereumjs-util - A collection of utility functions for Ethereum
+https://github.com/ethereumjs/ethereumjs-util
+*/
 import Transaction from "ethereumjs-tx";
 import TxUtil from "ethereumjs-util";
 
 class TxMgr {
+  //takes in an instance of ethereum manager
   constructor(ethereumMgr) {
     this.ethereumMgr = ethereumMgr;
   }
 
+  //verifying transaction that was made and seeing if it was signed
   async verify(_tx) {
     if (!_tx) throw "no tx";
     let txObj;
@@ -24,6 +36,7 @@ class TxMgr {
     }
   }
 
+  //get details of the transaction and returning them
   async decode(_tx) {
     if (!_tx) throw "no tx";
     if (typeof _tx !== "object") {

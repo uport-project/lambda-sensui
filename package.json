@@ -1,7 +1,7 @@
 {
   "name": "lambda-sensui",
   "version": "1.2.1",
-  "description": "uPort tx funding service",
+  "description": "tx funding service",
   "main": "index.js",
   "scripts": {
     "test": "jest --verbose --runInBand",
@@ -24,6 +24,10 @@
     {
       "name": "Joel Torstensson",
       "email": "joel.torstensson@consensys.net"
+    },
+    {
+      "name": "Robert Greenfield",
+      "email": "robby.greenfield@consensys.net"
     }
   ],
   "license": "MIT",
