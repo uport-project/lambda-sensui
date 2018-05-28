@@ -1,3 +1,16 @@
+/*
+file: fixNonce.js
+method: fixNonces
+needed parameters in url endpoint:
+
+activates fixnonce, which takes the following inputs (which are instatited
+at the top of the file):
+- ethereumMgr
+- fixNonces
+
+Purpose: this activates the handle method in handlers/fixNonce.js, which checks network nonce
+against db nonce
+*/
 import networks from "../lib/networks";
 import pack from "../../package";
 

@@ -1,3 +1,23 @@
+/*
+file: fund.js - to fund the fund address (which funds signed metatx)
+method: fund
+needed parameters in url endpoint:
+- tx
+- blockchain
+
+activates fundhandler, which takes the following inputs (which are instatited
+at the top of the file):
+- authMgr
+- ethereumMgr
+- metaTxMgr
+
+Purpose: this activates the handle method in handlers/fund.js, which verifies the tx with
+txMgr, decodes the transaction, verifies who the transaction is from, check if it
+is abusing the gas price by not funding any transaction with a set gas price of ethereum's
+trending gas price * 50 (i.e. blockchainGasPrice * 50), gets the balance of the Address
+to check if it's real/instatiated and check if funds are needed in the funder address, and then
+sends funds to the funding address (if more funds is needed)
+*/
 class FundHandler {
   constructor(authMgr, txMgr, ethereumMgr) {
     this.authMgr = authMgr;
