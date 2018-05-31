@@ -63,19 +63,47 @@ class MetaTxMgr {
   async isMetaSignatureValid({ metaSignedTx, blockchain, metaNonce }) {
     if (!metaSignedTx) throw "no metaSignedTx";
     if (!blockchain) throw "no blockchain";
-    const decodedTx = TxRelaySigner.decodeMetaTx(metaSignedTx);
-    const relayerAddress = await this.getRelayerAddress(blockchain);
-    let nonce = await this.getRelayNonce(decodedTx.claimedAddress, blockchain);
+    let decodedTx;
+    let relayerAddress
+    try{
+      decodedTx = TxRelaySigner.decodeMetaTx(metaSignedTx);
+      relayerAddress = await this.getRelayerAddress(blockchain);
+      console.log(decodedTx);
+    }catch(err){
+      console.log("Error on  TxRelaySigner.decodeMetaTx or getRelayerAddress")
+      console.log(err)
+      return false;
+    }
+
+    if(decodedTx.claimedAddress=='0x'){
+      console.log("no claimedAddress")
+      return false;
+    }
+
+    let nonce;
+    try{
+      nonce = await this.getRelayNonce(decodedTx.claimedAddress, blockchain);
+    }catch(err){
+      console.log("Error on getRelayNonce")
+      console.log(err)
+      return false;
+    }
     if (metaNonce !== undefined && metaNonce > nonce) {
       nonce = metaNonce.toString();
     }
     console.log("chosen nonce: " + nonce);
-    const validMetaSig = TxRelaySigner.isMetaSignatureValid(
-      relayerAddress,
-      decodedTx,
-      nonce
-    );
-    return validMetaSig;
+    try{
+      const validMetaSig = TxRelaySigner.isMetaSignatureValid(
+        relayerAddress,
+        decodedTx,
+        nonce
+      );
+      return validMetaSig;
+    }catch(err){
+      console.log("Error on TxRelaySigner.isMetaSignatureValid")
+      console.log(err)
+      return false;
+    }
   }
 
   async decodeMetaTx(metaSignedTx) {
