@@ -63,7 +63,7 @@ describe('send MetaTx integration tests', () => {
     let authMgrMock = {
       setSecrets: jest.fn(),
       isSecretsSet: jest.fn(),
-      verifyNisaba: () => { return { sub: senderKeyPair.address } }
+      verifyFuelToken: () => { return { sub: senderKeyPair.address } }
     }
     AuthMgr.mockImplementation(()=>{return authMgrMock});
 

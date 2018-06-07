@@ -18,7 +18,7 @@ describe('RelayHandler', () => {
 
   beforeAll(() => {
     authMgr = {
-      verifyNisaba: jest.fn()
+      verifyFuelToken: jest.fn()
     }
     metaTxMgr = {
       isMetaSignatureValid: jest.fn(),
@@ -101,7 +101,7 @@ describe('RelayHandler', () => {
     })
 
     test('handle token mismatch', async () => {
-      authMgr.verifyNisaba.mockImplementation(()=>{return {sub:'0xe4c7b7aba88156a3caf4c7bdaf5d3cbd6229081b'}})
+      authMgr.verifyFuelToken.mockImplementation(()=>{return {sub:'0xe4c7b7aba88156a3caf4c7bdaf5d3cbd6229081b'}})
       metaTxMgr.isMetaSignatureValid.mockImplementation(()=>{return true})
       metaTxMgr.decodeMetaTx.mockImplementation(()=>{return {claimedAddress: '0x'}})
       let event = {
