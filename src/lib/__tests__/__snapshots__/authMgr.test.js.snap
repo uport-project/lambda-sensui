@@ -1,0 +1,30 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`AuthMgr verifyFuelToken() happy path (old token) 1`] = `
+Object {
+  "aud": Array [
+    "unnu.uport.me",
+    "sensui.uport.me",
+  ],
+  "exp": 1515730535,
+  "iat": 1515729935,
+  "iss": "nisaba.uport.me",
+  "phoneNumber": "56998706962",
+  "sub": "0x9f7a1e41018fbb94caa18281e4d6acfc77521679",
+}
+`;
+
+exports[`AuthMgr verifyFuelToken() happy path DID 1`] = `
+Object {
+  "allowed": Array [
+    "unnu::rinkeby:*",
+    "unnu::kovan:*",
+    "unnu::ropste:*",
+  ],
+  "exp": 1559920915,
+  "iat": 1528384915,
+  "iss": "did:ethr:0x2f2f89dd69a684f56200f39d9d8a8b822d239ff3",
+  "sub": "0x82D24ee6D35a44256919e463461308DaBCB8295f",
+  "type": "fuel",
+}
+`;

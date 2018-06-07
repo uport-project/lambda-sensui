@@ -14,7 +14,7 @@ describe('FundHandler', () => {
 
   beforeAll(() => {
     authMgr = {
-      verifyNisaba: jest.fn()
+      verifyFuelToken: jest.fn()
     }
     txMgr = {
       verify: jest.fn(),
@@ -29,7 +29,7 @@ describe('FundHandler', () => {
   })
 
   beforeEach(()=>{
-    authMgr.verifyNisaba.mockReturnValue({sub: '0x434ed43244205757148ce1f05ffe3778bb40246e'})
+    authMgr.verifyFuelToken.mockReturnValue({sub: '0x434ed43244205757148ce1f05ffe3778bb40246e'})
     txMgr.verify.mockImplementation(()=>{return {} })
     txMgr.decode.mockReturnValue({
       gasPrice: 10,
@@ -47,7 +47,7 @@ describe('FundHandler', () => {
 
   describe('handle', () => {
     test('handle auth token', async () => {
-      authMgr.verifyNisaba.mockImplementation(()=>{throw {message: 'failed'}});
+      authMgr.verifyFuelToken.mockImplementation(()=>{throw {message: 'failed'}});
 
       await sut.handle({}, {headers: []}, (err, res) => {
         expect(err).not.toBeNull()
