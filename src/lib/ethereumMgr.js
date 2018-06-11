@@ -68,6 +68,12 @@ class EthereumMgr {
   }
 
   setSecrets(secrets) {
+    /*
+      VERY IMPORTANT - THIS IS HOW WE SEND TX WITH SERVICE OF USER
+        1. Sets PG_URL so that we can send database queries (from our encrypted secrets)
+        2. Sets the wallet seed from our encrypted secrets (the funding wallet seed)
+        3. Uses HDPrivateKey repo to do appropiate signer activities
+    */
     this.pgUrl = secrets.PG_URL;
     this.seed = secrets.SEED;
 
@@ -132,6 +138,21 @@ class EthereumMgr {
       connectionString: this.pgUrl
     });
 
+    /*
+      Resource Used: AWS RDS - PostgreSQL
+      Resource Link: https://aws.amazon.com/rds/postgresql/getting-started/
+      Need help with PostgreSQL? http://www.postgresqltutorial.com/
+      database scheme:
+        table name: nonces
+          columns: Address | Network | Nonce
+          $1 = 'address' input that was inserted in the getNonce function
+          $2 = 'networkName' input that was inserted in the getNonce function
+
+      What does this query statement do?
+      It attempts to insert the nonce of each transaction in the nonce table,
+      and, if there is a conflict as to the nonce being entered, then it updates
+      (https://www.postgresql.org/docs/9.5/static/sql-insert.html#SQL-ON-CONFLICT)
+    */
     try {
       await client.connect();
       const res = await client.query(
@@ -151,6 +172,15 @@ class EthereumMgr {
       await client.end();
     }
   }
+
+  /*
+    What does SignTx Do?
+      creates a new transaction taking in the metaSignedTx txHex
+      sets the gasPrice and nonce for the new transaction
+      ests the gasLimit to the estimatedgas + 1000
+      creates 'rawTx' by serializing the new transaction and converting to hex strings
+      signs raw transaction with signer
+  */
 
   async signTx({ txHex, blockchain }) {
     if (!txHex) throw "no txHex";
@@ -190,6 +220,33 @@ class EthereumMgr {
       signedRawTx
     );
 
+    /*
+    Transaction Creation & Signage Process:
+      Note: All of this is coordinated by the relay.js file in the handlers folder
+      Note: All functions being used are in the EthereumMgr.js file in the library folder
+      1. Get initial user input of metaSignedTx and blockchain network
+      2. Submit input into SignTx Function and get a signedRawTx via following process:
+          1. creates a new transaction taking in the metaSignedTx txHex
+          2. sets the gasPrice and nonce for the new transaction
+          3. ests the gasLimit to the estimatedgas + 1000
+          4. creates 'rawTx' by serializing the new transaction and converting to hex strings
+          5. signs raw transaction with signer and returns signedRawTx
+      3. Gets txHash from sending raw transction via sendRawTransaction, which does the following
+          1. Check if signedRawTx is legit
+          2. Using web3js to send transaction on respective blockchain using the follwoing func.
+             - eth.sendRawTransactionAsync
+          3. Returns txhash of transaction sent on blockchain
+
+    take in the signed raw transaction and convert some crucial elements in the
+    new tx object so that the call to web3js will be accepted. The end transaction has
+    the following object body:
+      tx = {
+        txObj.gasLimit,
+        txObj.gasPrice,
+        txObj.value,
+        tx.nonce,
+      }
+    */
     let txObj = Wallet.parseTransaction(signedRawTx);
     txObj.gasLimit = txObj.gasLimit.toString(16);
     txObj.gasPrice = txObj.gasPrice.toString();
@@ -286,6 +343,19 @@ class EthereumMgr {
     const client = new Client({
       connectionString: this.pgUrl
     });
+
+    /*
+      Resource Used: AWS RDS - PostgreSQL
+      Resource Link: https://aws.amazon.com/rds/postgresql/getting-started/
+      Need help with PostgreSQL? http://www.postgresqltutorial.com/
+      database scheme:
+        table name: tx
+          columns: TX_HASH | Network | TX_OPTIONS
+          $1 = 'txHash' input that was inserted in the storeTx function
+          $2 = 'networkName' input that was inserted in the storeTx function
+          $3 = 'txObj' input that was inserted in the storeTx function
+            - there also seems to be an attribute called txReceipt
+    */
 
     try {
       await client.connect();

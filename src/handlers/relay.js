@@ -93,6 +93,7 @@ class RelayHandler {
       return;
     }
 
+    //gets signed transaction
     let signedRawTx;
     try {
       signedRawTx = await this.ethereumMgr.signTx({
@@ -106,6 +107,7 @@ class RelayHandler {
       return;
     }
 
+    //sets transaction hash from created and sent signed transaction 
     try {
       const txHash = await this.ethereumMgr.sendRawTransaction(
         signedRawTx,
