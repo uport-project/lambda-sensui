@@ -122,10 +122,12 @@ The Sensui service leverages a centralized, off-chain sotre in order to provide 
 **Table 1: Nonce**
 | Address       | Network       | Nonce |
 | ------------- |:-------------:| -----:|
+|               |               |       |
 
 **Table 2: Tx**
 | Tx_Hash       | Network       | Tx_Options  | Tx_Receipt |
 | ------------- |:-------------:| -----------:|-----------:|
+|               |               |             |            |
 
 
 ### How do we start this up?
