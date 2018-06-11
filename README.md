@@ -119,15 +119,15 @@ The following outlines the **Transaction Creation & Signage Process**:
 ### Datastore Schema
 The Sensui service leverages a centralized, off-chain sotre in order to provide better consistency than querying the blockchain for past transactiond data. The service leverages an [AWS RDS PostgreSQL](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_GettingStarted.CreatingConnecting.PostgreSQL.html) instance to save transaction and nonce data from transactions being passed through the service. The following are the two tables within the PostgreSQL database (given the initial repository codebase): 
 
-**Table 1: Nonce **
+**Table 1: Nonce**
 
 - Column 1: Address
 - Column 2: Network
 - Column 3: Nonce 
   
-**Table 2: Tx **
+**Table 2: Tx**
 
-- Column 1: Tx_Has
+- Column 1: Tx_Hash
 - Column 2: Network
 - Column 3: Tx_Options
 - Column 4: Tx_Receipt           
