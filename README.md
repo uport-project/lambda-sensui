@@ -78,6 +78,56 @@ The `functions` block defines what code to deploy. These are the methods of your
 
 - **kms-secrets.master.us-west-2.yml** - A file that is automatically generated once secrets are encrypted by the sls encryption command noted in the SECRETS.md file. This is for the master stage service. Create a KMS key in AWS IAM service, under Encryption keys. Collect the key id, which is the remaining part of the key ARN.
 
+### How are transactions passed through from the Dapp to the sensui service (and paid for)?
+The following outlines the **Transaction Creation & Signage Process**:
+
+**Note:** All of this is coordinated by the relay.js file in the handlers folder
+**Note:** All functions being used in the following process are in the EthereumMgr.js file in the library folder
+
+1. Get initial user input of metaSignedTx and blockchain network
+
+2. Submit input into SignTx Function and get a signedRawTx via following process:
+
+- Creates a new transaction taking in the metaSignedTx txHex
+- Sets the gasPrice and nonce for the new transaction
+- Sets the gasLimit to the estimatedgas + 1000
+- Creates 'rawTx' by serializing the new transaction and converting to hex strings
+- Signs raw transaction with signer and returns signedRawTx
+
+3. Gets txHash from sending raw transction via sendRawTransaction, which does the following
+
+- Check if signedRawTx is legit
+- Using web3js to send transaction on respective blockchain using the follwoing function (e.g. eth.sendRawTransactionAsync)
+
+4. Returns txhash of transaction sent on blockchain. The end transaction has the following object body:
+```
+  tx = {
+    blockHash,
+    blockNumber,
+    from,
+    gas,
+    gasPrice,
+    hash,
+    input,
+    nonce,
+    to,
+    transactionIndex,
+    value
+  }
+```
+
+### Datastore Schema
+The Sensui service leverages a centralized, off-chain sotre in order to provide better consistency than querying the blockchain for past transactiond data. The service leverages an [AWS RDS PostgreSQL](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_GettingStarted.CreatingConnecting.PostgreSQL.html) instance to save transaction and nonce data from transactions being passed through the service. The following are the two tables within the PostgreSQL database (given the initial repository codebase): 
+
+**Table 1: Nonce**
+| Address       | Network       | Nonce |
+| ------------- |:-------------:| -----:|
+
+**Table 2: Tx**
+| Tx_Hash       | Network       | Tx_Options  | Tx_Receipt |
+| ------------- |:-------------:| -----------:|-----------:|
+
+
 ### How do we start this up?
 1. Open your terminal and choose a folder path you'd like to store the project in 
 
@@ -140,14 +190,14 @@ The authorization header needs a JWT token that is signed by the nisaba service 
 ```
 #### Response
 
-| Status |     Message    |                               |
-|:------:|----------------|-------------------------------|
-| 200    | Ok.            | address funded
-| 400    | Bad request      | No JSON or paramter missing  |
-| 401    | Forbidden      | Fuel token not granted by nisaba |               |
-| 403    | Forbidden      | JWT token missing or invalid  |
-| 429    | Abuse | Abusing gasPrice or funds not needed          |
-| 500    | Internal Error | Internal error                |
+| Status |     Message    |                                  |
+|:------:|----------------|----------------------------------|
+| 200    | Ok.            | address funded                   |
+| 400    | Bad request    | No JSON or paramter missing      |
+| 401    | Forbidden      | Fuel token not granted by nisaba |              
+| 403    | Forbidden      | JWT token missing or invalid     |
+| 429    | Abuse | Abusing gasPrice or funds not needed      |
+| 500    | Internal Error | Internal error                   |
 
 #### Response data
 ```
