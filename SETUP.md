@@ -3,7 +3,7 @@
 
    ```node -v```
    
-   Make sure you use node 6 or 8.10 (Although for node 8.10, `npm test` 4 tests failed; for node 6, 1 test failed ). 
+   Make sure you use node 6 or 8.10 (Although for node 8.10, run `npm test`, 4 tests failed; for node 6, 1 test failed ). 
    
    I recommend using nvm (https://github.com/creationix/nvm) to manage different node.js versions (`nvm install 8.10; nvm use 8.10`).
 2. Install serverless
@@ -13,7 +13,7 @@
 
    ```npm install```
 
-   run `npm test`, for node 8.10, `npm test` 4 tests failed; for node 6, 1 test failed. (FIXME)
+   run `npm test`, for node 8.10, 4 tests failed; for node 6, 1 test failed. (FIXME)
 4. Make sure you have an AWS account. Set up AWS credentials: https://serverless.com/framework/docs/providers/aws/guide/credentials/
 
    In this step, make sure your `~/.aws/credentials` is setup correctly. And you exported your environment variables:
@@ -33,7 +33,7 @@
     
     Create two tables:
     - `tx`: https://github.com/ConsenSys/lambda-sensui/blob/master/sql/create_tx.sql
-    - `nounces`: https://github.com/ConsenSys/lambda-sensui/blob/master/sql/create_nonces.sql
+    - `nonces`: https://github.com/ConsenSys/lambda-sensui/blob/master/sql/create_nonces.sql
 7. Set up Slack incoming webhooks: https://api.slack.com/incoming-webhooks, get `SLACK_URL` and `SLACK_CHANNEL`
 
     A message will be posted to slack whenever `checkBalances` and the fund is lower than a threshold.
