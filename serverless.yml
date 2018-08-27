@@ -69,6 +69,7 @@ functions:
          method: post
   checkPending:
     handler: src/api_handler.checkPending
+    timeout: 30
     description: uPort check if pending tx are mined
     events:
      - http:
