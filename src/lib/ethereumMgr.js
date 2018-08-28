@@ -305,13 +305,17 @@ class EthereumMgr {
     if (!txHash) throw "no txHash";
     if (!networkName) throw "no networkName";
     if (!this.web3s[networkName]) throw "no web3 for networkName";
-    const txReceipt = await this.web3s[
-      networkName
-    ].eth.getTransactionReceiptAsync(txHash);
+    try {
+      const txReceipt = await this.web3s[
+        networkName
+      ].eth.getTransactionReceiptAsync(txHash);
 
-    await this.updateTx(txHash, networkName, txReceipt);
-
-    return txReceipt;
+      await this.updateTx(txHash, networkName, txReceipt);
+      return txReceipt;
+    } catch (error) {
+      console.log("Error calling this.updateTx", error);
+      return null;
+    }
   }
 
   async updateTx(txHash, networkName, txReceipt) {
@@ -340,7 +344,7 @@ class EthereumMgr {
     }
   }
 
-  async getPendingTx(networkName,age){
+  async getPendingTx(networkName, age) {
     if (!networkName) throw "no networkName";
     if (!age) throw "no age";
     if (!this.pgUrl) throw "no pgUrl set";
@@ -357,7 +361,7 @@ class EthereumMgr {
           WHERE tx_receipt is NULL \
             AND network = $1 \
             AND created > now() - CAST ($2 AS INTERVAL)",
-        [networkName, age+' seconds']
+        [networkName, age + " seconds"]
       );
       return res;
     } catch (e) {
