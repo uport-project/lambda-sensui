@@ -67,9 +67,7 @@ class CheckPendingHandler {
         row.tx_hash,
         body.blockchain
       );
-      if (txReceipt) {
-        promises.push(txReceipt);
-      }
+      promises.push(txReceipt);
     });
 
     let promisesRes = await Promise.all(promises);
