@@ -44,6 +44,7 @@
     "jest": "^21.2.0"
   },
   "dependencies": {
+    "ajv": "^6.5.3",
     "bluebird": "^3.5.1",
     "did-jwt": "^0.0.8",
     "eth-signer": "^0.3.4",

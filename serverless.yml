@@ -40,6 +40,7 @@ plugins:
 # Enable auto-packing of external modules
 custom:
   webpackIncludeModules: true
+  packExternalModulesMaxBuffer: 409600
   serverless-kms-secrets:
     secretsFile: kms-secrets.${opt:stage, self:provider.stage}.${opt:region, self:provider.region}.yml
   kmsSecrets: ${file(kms-secrets.${opt:stage, self:provider.stage}.${opt:region, self:provider.region}.yml)}
