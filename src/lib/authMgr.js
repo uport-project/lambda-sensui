@@ -1,5 +1,5 @@
-import { decodeToken, TokenVerifier } from 'jsontokens'
-import { verifyJWT } from 'did-jwt'
+const { decodeToken, TokenVerifier } = require('jsontokens')
+const { verifyJWT } = require ('did-jwt')
 
 class AuthMgr {
 

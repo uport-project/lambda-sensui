@@ -19,9 +19,9 @@ https://github.com/trufflesuite/truffle-contract
 - eth-signer - A minimal ethereum javascript signer used to sign and send meta tx
 https://github.com/ConsenSys/eth-signer
 */
-import { TxRelay } from "uport-identity";
-import Contract from "truffle-contract";
-import { signers } from "eth-signer";
+const { TxRelay }=require("uport-identity");
+const Contract=require("truffle-contract");
+const { signers }=require("eth-signer");
 
 const txRelayArtifact = TxRelay.v2;
 const TxRelaySigner = signers.TxRelaySigner;

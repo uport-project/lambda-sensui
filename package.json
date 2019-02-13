@@ -37,16 +37,15 @@
   "homepage": "https://github.com/uport-project/lambda-sensui#readme",
   "devDependencies": {
     "aws-sdk-mock": "^1.7.0",
-    "babel-loader": "^7.1.2",
-    "babel-preset-env": "^1.6.0",
     "bip39": "^2.5.0",
     "ganache-cli": "^6.0.3",
-    "jest": "^21.2.0"
+    "jest": "^23.6.0",
+    "serverless-offline": "^4.4.2"
   },
   "dependencies": {
     "ajv": "^6.5.3",
     "bluebird": "^3.5.1",
-    "did-jwt": "^0.0.8",
+    "did-jwt": "^0.1.1",
     "eth-signer": "^0.3.4",
     "ethereumjs-tx": "^1.3.3",
     "ethers": "^3.0.15",
@@ -55,13 +54,10 @@
     "jsontokens": "^0.7.6",
     "pg": "^7.4.0",
     "serverless-kms-secrets": "^1.0.2",
-    "serverless-webpack": "^4.2.0",
     "slack-webhook": "^1.0.0",
     "truffle-contract": "^3.0.0",
     "uport-identity": "^2.0.0",
-    "web3": "^0.20.3",
-    "webpack": "^3.10.0",
-    "webpack-node-externals": "^1.6.0"
+    "web3": "^0.20.3"
   },
   "jest": {
     "coverageDirectory": "./coverage/",

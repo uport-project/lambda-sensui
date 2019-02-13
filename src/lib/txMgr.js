@@ -8,8 +8,8 @@ https://github.com/ethereumjs/ethereumjs-tx
 - ethereumjs-util - A collection of utility functions for Ethereum
 https://github.com/ethereumjs/ethereumjs-util
 */
-import Transaction from "ethereumjs-tx";
-import TxUtil from "ethereumjs-util";
+const Transaction = require("ethereumjs-tx");
+const TxUtil = require("ethereumjs-util");
 
 class TxMgr {
   //takes in an instance of ethereum manager

@@ -1,20 +1,20 @@
-import AWS from "aws-sdk";
-import MockAWS from "aws-sdk-mock";
+const AWS = require("aws-sdk");
+const MockAWS = require("aws-sdk-mock");
 MockAWS.setSDKInstance(AWS);
 
-import networks from '../lib/networks'
-import MetaTestRegistry from './MetaTestRegistry'
-import UportIdentity from 'uport-identity'
-import TestRPC from 'ganache-cli'
-import Transaction from 'ethereumjs-tx'
-import Contract from 'truffle-contract'
-import Web3 from 'web3'
-import Promise from 'bluebird'
-import bip39 from 'bip39'
-import EthSigner from 'eth-signer'
+const networks = require('../lib/networks');
+const MetaTestRegistry = require('./MetaTestRegistry');
+const UportIdentity = require('uport-identity');
+const TestRPC = require('ganache-cli');
+const Transaction = require('ethereumjs-tx');
+const Contract = require('truffle-contract');
+const Web3 = require('web3');
+const Promise = require('bluebird');
+const bip39 = require('bip39');
+const EthSigner = require('eth-signer');
 
 jest.mock('pg')
-import { Client } from 'pg'
+const { Client } = require('pg');
 let pgClientMock={
     connect: jest.fn(),
     query: () => { return { rows: [{nonce: 0}]} },

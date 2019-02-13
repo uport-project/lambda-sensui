@@ -1,4 +1,4 @@
-import Transaction from "ethereumjs-tx";
+const Transaction = require("ethereumjs-tx");
 
 const TxMgr = require("../txMgr");
 

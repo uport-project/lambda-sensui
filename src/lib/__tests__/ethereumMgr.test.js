@@ -1,5 +1,5 @@
 jest.mock("pg");
-import { Client } from "pg";
+const { Client } = require ("pg");
 let pgClientMock = {
   connect: jest.fn(),
   end: jest.fn()

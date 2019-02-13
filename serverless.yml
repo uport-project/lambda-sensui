@@ -1,18 +1,12 @@
-# serverless.yml
-
-# Serverless.yml is the configuration the CLI uses to deploy your code to
-# your provider of choice. The file denotes the entire architecture of the
-# server, including the provider, the plugins, and the functions.
-
-# Read the serverless docs here:
-# https://serverless.com/framework/docs/
-
-# The `service` block is the name of the service
 service: lambda-sensui
-# The `provider` block defines where your service will be deployed
+
+plugins:
+  - serverless-offline
+  - serverless-kms-secrets
+
 provider:
   name: aws
-  runtime: nodejs6.10
+  runtime: nodejs8.10
   stage: develop
   region: us-west-2
   iamRoleStatements:
@@ -20,35 +14,18 @@ provider:
       Action:
       - KMS:Decrypt
       Resource: ${self:custom.kmsSecrets.keyArn}
-    - Effect: Allow
-      Action:
-      - s3:*
-      Resource: 'arn:aws:s3:::*'
-
   environment:
       SECRETS: ${self:custom.kmsSecrets.secrets.SECRETS}
 
-# Use the serverless-webpack plugin to transpile ES6
-
-# serverless-kms-secrets: Serverless plugin to encrypt variables with KMS
-# A Serverless Plugin for the Serverless Framework which helps with
-# encrypting service secrets using the AWS Key Management Service (KMS)
-plugins:
-  - serverless-webpack
-  - serverless-kms-secrets
-
-# Enable auto-packing of external modules
 custom:
-  webpackIncludeModules: true
-  packExternalModulesMaxBuffer: 409600
   serverless-kms-secrets:
     secretsFile: kms-secrets.${opt:stage, self:provider.stage}.${opt:region, self:provider.region}.yml
   kmsSecrets: ${file(kms-secrets.${opt:stage, self:provider.stage}.${opt:region, self:provider.region}.yml)}
-# The `functions` block defines what code to deploy
+
 functions:
   fund:
-    handler: src/api_handler.fund
     description: Fund handler
+    handler: src/api_handler.fund
     timeout: 30
     events:
      - http:
@@ -58,8 +35,8 @@ functions:
          path: fund
          method: post
   relay:
-    handler: src/api_handler.relay
     description: Relay handler
+    handler: src/api_handler.relay
     timeout: 30
     events:
      - http:

@@ -28,13 +28,13 @@ It also tries to provide guides for more advanced & edge-case topics allowing yo
 tap into the full power of PostgreSQL from node.js.
 https://node-postgres.com/
 */
-import networks from "./networks";
-import Web3 from "web3";
-import Promise from "bluebird";
-import { generators, signers } from "eth-signer";
-import Transaction from "ethereumjs-tx";
-import { Wallet } from "ethers";
-import { Client } from "pg";
+const networks = require("./networks");
+const Web3 = require("web3");
+const Promise = require("bluebird");
+const { generators, signers } = require("eth-signer");
+const Transaction = require("ethereumjs-tx");
+const { Wallet } = require("ethers");
+const { Client } = require("pg");
 
 /*
 from ethsigner library, https://github.com/ConsenSys/eth-signer/blob/master/lib/hd_signer.js

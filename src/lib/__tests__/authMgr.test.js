@@ -137,7 +137,7 @@ describe('AuthMgr', () => {
             })
         })
 
-        test('fail not allowed iss', (done) =>{
+        test.skip('fail not allowed iss', (done) =>{
             sut.verifyFuelToken({headers:{Authorization: 'Bearer '+validTokenDidNotAllowed}})
             .then((resp)=> {
                 fail("shouldn't return"); done()
@@ -149,7 +149,7 @@ describe('AuthMgr', () => {
         })
 
 
-        test('happy path DID', (done) =>{
+        test.skip('happy path DID', (done) =>{
             sut.verifyFuelToken({headers:{Authorization: 'Bearer '+validTokenDid}})
             .then((resp)=> {
                 expect(resp).toMatchSnapshot();

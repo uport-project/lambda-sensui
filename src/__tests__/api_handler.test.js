@@ -1,5 +1,5 @@
-import AWS from "aws-sdk";
-import MockAWS from "aws-sdk-mock";
+const AWS = require("aws-sdk");
+const MockAWS = require ("aws-sdk-mock");
 MockAWS.setSDKInstance(AWS);
 
 const apiHandler = require('../api_handler');
