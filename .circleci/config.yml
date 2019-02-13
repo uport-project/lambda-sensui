@@ -1,9 +1,9 @@
 version: 2
 jobs:
   build:
-    working_directory: ~/lambda-sensui
+    working_directory: ~/repo
     docker:
-      - image: circleci/node:6.10
+      - image: circleci/node:8.10
     steps:
       - checkout
 
