@@ -43,7 +43,6 @@
     "serverless-offline": "^4.4.2"
   },
   "dependencies": {
-    "ajv": "^6.5.3",
     "bluebird": "^3.5.1",
     "did-jwt": "^0.1.1",
     "eth-signer": "^0.3.4",
