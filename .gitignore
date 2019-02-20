@@ -66,3 +66,6 @@ curl_scripts/
 .DS_Store
 
 .vscode
+
+create-identity.js
+create-validtoken.js

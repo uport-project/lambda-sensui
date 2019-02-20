@@ -7,7 +7,7 @@ uPort Funding Service
 
 ## API Description
 
-### Fund address
+### RPC endpoint
 This endpoints tries to send funds to the address on the `from` field of the transaction.
 The `from` field needs to match with the `deviceKey` in the Authorization token.
 

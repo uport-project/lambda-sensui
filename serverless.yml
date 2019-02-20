@@ -23,42 +23,12 @@ custom:
   kmsSecrets: ${file(kms-secrets.${opt:stage, self:provider.stage}.${opt:region, self:provider.region}.yml)}
 
 functions:
-  fund:
-    description: Fund handler
-    handler: src/api_handler.fund
+  rpc:
+    description: RPC handler
+    handler: src/api_handler.rpc
     timeout: 30
     events:
      - http:
-         path: v1/fund #Legacy
+         path: rpc/{networkId}/{authToken}
          method: post
-     - http:
-         path: fund
-         method: post
-  relay:
-    description: Relay handler
-    handler: src/api_handler.relay
-    timeout: 30
-    events:
-     - http:
-         path: v2/relay #Legacy
-         method: post
-     - http:
-         path: relay
-         method: post
-  checkPending:
-    handler: src/api_handler.checkPending
-    description: uPort check if pending tx are mined
-    events:
-     - http:
-         path: checkPending
-         method: post
-  checkBalances:
-    handler: src/jobs_handler.checkBalances
-    description: uPort check for balances on all address used and report if low funds
-    events:
-      - schedule:
-          rate: rate(10 minutes)
-          enabled: true
-  fixNonces:
-    handler: src/script_handler.fixNonces
-    description: uPort fix for blockchain nonces against database stored nonce
+  

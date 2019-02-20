@@ -1,15 +1,24 @@
-module.exports = createJsendHandler = (handler) => {
+module.exports = createCorsHandler = (handler) => {
     return (event, context, callback) => {
         handler.handle(event, context, (err, resp) => {
-            let response;
+            let response
+            let extraHeaders;
             if (err == null) {
-              response = {
-                statusCode: 200,
-                body: JSON.stringify({
-                  status: "success",
-                  data: resp
-                })
-              };
+              if(resp.code==302){
+                //Redirect logic
+                response = {
+                  statusCode: 302,
+                  body: "Redirect to: "+resp.location
+                }
+                extraHeaders={
+                  'Location': resp.location
+                }
+              }else{
+                response = {
+                  statusCode: 200,
+                  body: JSON.stringify(resp)
+                };
+              }
             } else {
               //console.log(err);
               let code = 500;
@@ -19,10 +28,7 @@ module.exports = createJsendHandler = (handler) => {
         
               response = {
                 statusCode: code,
-                body: JSON.stringify({
-                  status: "error",
-                  message: message
-                })
+                body: JSON.stringify(message)
               };
             }
         
@@ -30,8 +36,9 @@ module.exports = createJsendHandler = (handler) => {
             response.headers={
               'Access-Control-Allow-Origin': '*',
               'Access-Control-Allow-Credentials': true,
+              ...extraHeaders
             };
-        
+            
             callback(null, response);
           });
     }
