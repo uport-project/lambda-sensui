@@ -1,5 +1,3 @@
-const didJWT = require('did-jwt')
-
 jest.mock('request-promise-native');
 const rpn = require('request-promise-native');
 
@@ -8,19 +6,13 @@ const sutHandler = require('../rpc');
 describe('RpcHandler', () => {
     
     let sut;
-    let authToken;
+    const authToken="faketoken";
 
     //Mocked Mgrs
     let authMgrMock={ verify: jest.fn().mockImplementation((a)=>{ return {iss:a}})};
     
     beforeAll(async () => {
-        const did = 'did:ethr:0x51e472d2348e4fa186ca13f73a179c2c884d5aec';
-        const privateKey =  '758d989821556dae2d5801c21534991e109f4deb3f3e411e284dd8555487fb15'
-        const signer = didJWT.SimpleSigner(privateKey);
-        authToken= await didJWT.createJWT({},{issuer: did, signer})
-
         sut = new sutHandler(authMgrMock);
-        
     });
 
     test('empty constructor', () => {
