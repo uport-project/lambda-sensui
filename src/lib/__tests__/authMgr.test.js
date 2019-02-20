@@ -10,12 +10,13 @@ describe('AuthMgr', () => {
     
     let sut;
     let validToken;
+    const sub='0x0'
 
     beforeAll((done) =>{
         sut = new sutMgr();
 
         credentials.createVerification({
-            sub: '0x0',
+            sub: sub,
             claims: {valid: 'Token'}
         }).then((token)=>{
             validToken=token;
@@ -56,6 +57,8 @@ describe('AuthMgr', () => {
             .then((resp)=> {
                 expect(resp).not.toBeNull();
                 expect(resp.issuer).toEqual(did)
+                expect(resp.payload.sub).toEqual(sub)
+            
                 done();
             })
             .catch( (err)=>{

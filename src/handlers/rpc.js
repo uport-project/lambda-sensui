@@ -2,6 +2,7 @@
 const jsonRpcProtocol = require('json-rpc-protocol')
 const networks = require('../lib/networks');
 const rp = require('request-promise-native');
+const Transaction = require ('ethereumjs-tx');
 
 module.exports = class RpcHandler {
     constructor (authMgr) {
@@ -99,8 +100,62 @@ module.exports = class RpcHandler {
 
         const issuerDID = verifiedAuthToken.issuer;
 
-        //
+        //Decode tx
+        const txHex=jsonRpcMsg.params[0];
+        let txObj;
+        try{
+            txObj = new Transaction(txHex);
+        } catch (error){
+            console.log("new Transaction(txHex) error: "+error.message)
+            const jsonRpcError = new jsonRpcProtocol.JsonRpcError(error.message, -32002)
+            const err=JSON.parse(jsonRpcProtocol.format.error(jsonRpcMsg.id,jsonRpcError));
+            console.log(err)
+            cb(err);
+            return;
+        } 
+        console.log(txObj);
 
+        //Verify Tx Signature
+        try{
+            if(!txObj.verifySignature()) throw Error("txObj.verifySigntature() fail")
+        } catch (error){
+            console.log("new Transaction(txHex) error: "+error.message)
+            const jsonRpcError = new jsonRpcProtocol.JsonRpcError(error.message, -32003)
+            const err=JSON.parse(jsonRpcProtocol.format.error(jsonRpcMsg.id,jsonRpcError));
+            console.log(err)
+            cb(err);
+            return;
+        } 
+
+        const from = '0x' + txObj.getSenderAddress().toString('hex')
+        const to = '0x'+txObj.to.toString('hex')
+        const txGasPrice = parseInt(txObj.gasPrice.toString('hex'),16)
+        const txGasLimit = parseInt(txObj.gasLimit.toString('hex'),16)
+
+        console.log('    from: ' + from)
+        console.log('      to: ' + to)
+        console.log('    data: ' + txObj.data.toString('hex'))
+        console.log('   value: ' + parseInt(txObj.value.toString('hex'), 16))
+        console.log('gasPrice: ' + txGasPrice)
+        console.log('gasLimit: ' + txGasLimit)
+
+
+        //Check if `from` in the tx is the `sub` in the authToken;
+        try{
+            if(from != verifiedAuthToken.payload.sub) throw Error("token mismatch. sub does not match `from` field in tx")
+        } catch (error){
+            console.log("from != verifiedAuthToken.payload.sub error: "+error.message)
+            const jsonRpcError = new jsonRpcProtocol.JsonRpcError(error.message, -32004)
+            const err=JSON.parse(jsonRpcProtocol.format.error(jsonRpcMsg.id,jsonRpcError));
+            console.log(err)
+            cb(err);
+            return;
+        } 
+
+        //Check balance of `from`
+
+
+        
 
         const txHash = "0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331"
         const resp= jsonRpcProtocol.format.response(jsonRpcMsg.id, txHash )
