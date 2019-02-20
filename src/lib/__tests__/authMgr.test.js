@@ -55,6 +55,7 @@ describe('AuthMgr', () => {
             sut.verify(validToken)
             .then((resp)=> {
                 expect(resp).not.toBeNull();
+                expect(resp.issuer).toEqual(did)
                 done();
             })
             .catch( (err)=>{

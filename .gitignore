@@ -69,3 +69,4 @@ curl_scripts/
 
 create-identity.js
 create-validtoken.js
+create-authtoken.js
