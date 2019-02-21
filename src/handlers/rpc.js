@@ -5,8 +5,9 @@ const rp = require('request-promise-native');
 const Transaction = require ('ethereumjs-tx');
 
 module.exports = class RpcHandler {
-    constructor (authMgr) {
+    constructor (authMgr,etherumMgr) {
         this.authMgr=authMgr;
+        this.etherumMgr=etherumMgr;
     }
 
     async handle(event,context, cb) {
@@ -113,7 +114,7 @@ module.exports = class RpcHandler {
             cb(err);
             return;
         } 
-        console.log(txObj);
+        //console.log(txObj);
 
         //Verify Tx Signature
         try{
@@ -131,6 +132,8 @@ module.exports = class RpcHandler {
         const to = '0x'+txObj.to.toString('hex')
         const txGasPrice = parseInt(txObj.gasPrice.toString('hex'),16)
         const txGasLimit = parseInt(txObj.gasLimit.toString('hex'),16)
+        const txHash = "0x"+txObj.hash().toString('hex')
+
 
         console.log('    from: ' + from)
         console.log('      to: ' + to)
@@ -152,12 +155,87 @@ module.exports = class RpcHandler {
             return;
         } 
 
-        //Check balance of `from`
+        const txNeeded = txGasPrice * txGasLimit;
+        const txNeededTolerance  = txNeeded * 1.05; //TODO: Change 1.05 to ENV_VAR. No magic numbers!
 
+        console.log("txNeededTolerance: "+txNeededTolerance)
 
+        //Get balance of `from`
+        let balance;
+        try {
+            balance = await this.etherumMgr.getBalance(networkId,from);
+        } catch (error){
+            console.log("this.etherumMgr.getBalance() error: "+error.message)
+            const jsonRpcError = new jsonRpcProtocol.JsonRpcError(error.message, -32005)
+            const err=JSON.parse(jsonRpcProtocol.format.error(jsonRpcMsg.id,jsonRpcError));
+            console.log(err)
+            cb(err);
+            return;
+        } 
+        console.log("balance:" + balance);
+
+        //Check if funding is not needed
+        if(parseInt(balance) > txNeededTolerance){
+
+            //Relay to networkEndpoint
+            const options = {
+                method: 'POST',
+                uri: networks[networkId].rpcUrl,
+                body: jsonRpcMsg,
+                json: true 
+            };
+            
+            let relayedResp;
+            try{
+                relayedResp = await rp(options);
+            }catch(error){
+                console.log("request error: "+error.message)
+                const jsonRpcError = new jsonRpcProtocol.JsonRpcError(error.message, -32000)
+                const err=JSON.parse(jsonRpcProtocol.format.error(jsonRpcMsg.id,jsonRpcError));
+                console.log(err)
+                cb(err);
+                return;
+            }
+            cb(null,relayedResp)
+            return;
+        }
+
+        //Get networkGasPrice
+        let networkGasPrice;
+        try {
+            networkGasPrice = await this.etherumMgr.getGasPrice(networkId);
+        } catch (error){
+            console.log("this.etherumMgr.getGasPrice() error: "+error.message)
+            const jsonRpcError = new jsonRpcProtocol.JsonRpcError(error.message, -32005)
+            const err=JSON.parse(jsonRpcProtocol.format.error(jsonRpcMsg.id,jsonRpcError));
+            console.log(err)
+            cb(err);
+            return;
+        } 
+        console.log(networkGasPrice);
+
+        let isAbusingGasPrice = ( txGasPrice > networkGasPrice * 50 ) // TODO: Change 50 to ENV_VAR. No magic numbers!
+        console.log('isAbusingGasPrice  : ' + isAbusingGasPrice );
         
+        //Check if isAbusingGasPrice (gasPrice on tx is tooo high)
+        try{
+            if(isAbusingGasPrice) throw Error("abusing gasPrice")
+        } catch (error){
+            console.log("isAbusingGasPrice: "+error.message)
+            const jsonRpcError = new jsonRpcProtocol.JsonRpcError(error.message, -32006)
+            const err=JSON.parse(jsonRpcProtocol.format.error(jsonRpcMsg.id,jsonRpcError));
+            console.log(err)
+            cb(err);
+            return;
+        } 
 
-        const txHash = "0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331"
+        //Build fundingTx
+        const topUpTo = txNeededTolerance * 1.5;
+        const amountToFund = topUpTo - parseInt(balance);
+        console.log("topUpTo: "+topUpTo)
+        console.log("amountToFund: "+amountToFund)
+        
+        //TODO: 
         const resp= jsonRpcProtocol.format.response(jsonRpcMsg.id, txHash )
 
         cb(null,JSON.parse(resp))

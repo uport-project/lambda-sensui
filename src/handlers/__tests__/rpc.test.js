@@ -11,17 +11,26 @@ describe('RpcHandler', () => {
 
 
     //Mocked Mgrs
-    let authMgrMock={ verify: jest.fn().mockImplementation((a)=>{ 
+    let authMgrMock={ verify: jest.fn().mockImplementation(()=>{ 
         return {
-            issuer:a, 
+            issuer:'did:ethr:someIssuer', 
             payload: {
                 sub:'0x17da6a8b86578cec4525945a355e8384025fa5af'
             }
         }
     })};
+
+    let ethereumMgrMock={ 
+        getBalance: jest.fn().mockImplementation(()=>{ 
+            return "0";
+        }),
+        getGasPrice: jest.fn().mockImplementation(()=>{
+            return 1000000000
+        })
+    };
     
     beforeAll(async () => {
-        sut = new sutHandler(authMgrMock);
+        sut = new sutHandler(authMgrMock,ethereumMgrMock);
     });
 
     test('empty constructor', () => {
@@ -146,6 +155,7 @@ describe('RpcHandler', () => {
         })
     });
 
+    
     test('handle token mismatch fail', done => {
         authMgrMock.verify.mockImplementationOnce( ()=>{ 
             return {
@@ -169,6 +179,90 @@ describe('RpcHandler', () => {
         })
     });
 
+
+    test('handle getBalance() fail', done => {
+        ethereumMgrMock.getBalance.mockImplementationOnce( () => {throw new Error("error getting balance")})
+        
+        const event = {
+            pathParameters:{networkId:'0x4', authToken: authToken },
+            body: {"jsonrpc":"2.0","method":"eth_sendRawTransaction","params":[rawTx],"id":67} 
+        }
+        sut.handle(event,null,(err,res)=>{
+            expect(err).not.toBeNull()
+            expect(err.error).not.toBeNull()
+            expect(err.error.code).toEqual(-32005)
+
+            expect(err.error.message).toEqual('error getting balance')
+            done();
+        })
+    });
+
+    test('funding not needed (failed relayed call)', done => {
+        rpn.mockImplementationOnce( (opt) => { throw Error('fail')} );
+        ethereumMgrMock.getBalance.mockReturnValueOnce("20000000000000000000000")
+        const event = {
+            pathParameters:{networkId:'0x4', authToken: authToken },
+            body: {"jsonrpc":"2.0","method":"eth_sendRawTransaction","params":[rawTx],"id":67} 
+        }
+        sut.handle(event,null,(err,res)=>{
+            expect(err).not.toBeNull()
+            expect(err.error).not.toBeNull()
+            expect(err.error.code).toEqual(-32000)
+            expect(err.error.message).toEqual('fail')
+            done();
+        })
+    });
+
+    test('happy path funding not needed', done => {
+        rpn.mockImplementationOnce( () => { return  {"id": 67, "jsonrpc": "2.0", "result": "0xtxHash"}} );
+        ethereumMgrMock.getBalance.mockReturnValueOnce("20000000000000000000000")
+        const event = {
+            pathParameters:{networkId:'0x4', authToken: authToken },
+            body: {"jsonrpc":"2.0","method":"eth_sendRawTransaction","params":[rawTx],"id":67} 
+        }
+        sut.handle(event,null,(err,res)=>{
+            expect(err).toBeNull()
+            expect(res).toEqual( {"id": 67, "jsonrpc": "2.0", "result": "0xtxHash"})
+            done();
+        })
+    });
+
+    test('handle getGasPrice() fail', done => {
+        ethereumMgrMock.getGasPrice.mockImplementationOnce( () => {throw new Error("error getting gasprice")})
+        
+        const event = {
+            pathParameters:{networkId:'0x4', authToken: authToken },
+            body: {"jsonrpc":"2.0","method":"eth_sendRawTransaction","params":[rawTx],"id":67} 
+        }
+        sut.handle(event,null,(err,res)=>{
+            expect(err).not.toBeNull()
+            expect(err.error).not.toBeNull()
+            expect(err.error.code).toEqual(-32005)
+
+            expect(err.error.message).toEqual('error getting gasprice')
+            done();
+        })
+    });
+
+    test('handle abusing gasPrice', done => {
+        ethereumMgrMock.getGasPrice.mockReturnValueOnce(1)
+        
+        const event = {
+            pathParameters:{networkId:'0x4', authToken: authToken },
+            body: {"jsonrpc":"2.0","method":"eth_sendRawTransaction","params":[rawTx],"id":67} 
+        }
+        sut.handle(event,null,(err,res)=>{
+            expect(err).not.toBeNull()
+            expect(err.error).not.toBeNull()
+            expect(err.error.code).toEqual(-32006)
+
+            expect(err.error.message).toEqual('abusing gasPrice')
+            done();
+        })
+    });
+
+
+
     test('handle happy path eth_sendRawTransaction', done => {
         const event = {
             pathParameters:{networkId:'0x4', authToken: authToken },
@@ -177,7 +271,7 @@ describe('RpcHandler', () => {
         sut.handle(event,null,(err,res)=>{
             expect(err).toBeNull()
             expect(res.id).toEqual(67)
-            expect(res.result).toEqual("0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331")
+            expect(res.result).toEqual("0xf699beb4d1436439e3c362c9f98ddd67a1cbe76b018bbe98c301677f17637724")
             done();
         })
     });
