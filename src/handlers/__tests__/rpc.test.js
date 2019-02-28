@@ -20,17 +20,33 @@ describe('RpcHandler', () => {
         }
     })};
 
-    let ethereumMgrMock={ 
-        getBalance: jest.fn().mockImplementation(()=>{ 
-            return "0";
-        }),
-        getGasPrice: jest.fn().mockImplementation(()=>{
-            return 1000000000
-        })
-    };
-    
+    let fundingMgrMock = {
+        decodeTx: jest.fn().mockImplementation(()=>{ 
+            return {
+                "from": "0x17da6a8b86578cec4525945a355e8384025fa5af", 
+                "to": "0xb78777860637d56543da23312c7865024833f7d1",
+                "data":"",
+                "value": 100000000000000000,
+                "txGasLimit": 21000, 
+                "txGasPrice": 1000000000, 
+                "txHash": "0xf699beb4d1436439e3c362c9f98ddd67a1cbe76b018bbe98c301677f17637724", 
+            }}),
+        fundingInfo: jest.fn().mockImplementation(()=>{
+            return {
+                "amountToFund": 33075000000000, 
+                "balance": "0", 
+                "isAbusingGasPrice": false, 
+                "isFundingNeeded": true, 
+                "networkGasPrice": 1000000000, 
+                "topUpTo": 33075000000000, 
+                "txNeeded": 21000000000000, 
+                "txNeededTolerance": 22050000000000
+            }}),
+        fundTx: jest.fn()
+        };
+
     beforeAll(async () => {
-        sut = new sutHandler(authMgrMock,ethereumMgrMock);
+        sut = new sutHandler(authMgrMock,fundingMgrMock);
     });
 
     test('empty constructor', () => {
@@ -125,7 +141,8 @@ describe('RpcHandler', () => {
         })
     });
 
-    test('handle badTx fail', done => {
+    test('handle fundingMgr.decodeTx fail', done => {
+        fundingMgrMock.decodeTx.mockImplementationOnce( () => {throw new Error("decodeTx fail")})
         const event = {
             pathParameters:{networkId:'0x4', authToken: authToken },
             body: {"jsonrpc":"2.0","method":"eth_sendRawTransaction","params":["badTx"],"id":67} 
@@ -135,27 +152,11 @@ describe('RpcHandler', () => {
             expect(err.error).not.toBeNull()
             expect(err.error.code).toEqual(-32002)
 
-            expect(err.error.message).toEqual('invalid remainder')
+            expect(err.error.message).toEqual('decodeTx fail')
             done();
         })
     });
 
-    test('handle verifySignature fail', done => {
-        const event = {
-            pathParameters:{networkId:'0x4', authToken: authToken },
-            body: {"jsonrpc":"2.0","method":"eth_sendRawTransaction","params":[rawTx.slice(-1)],"id":67} 
-        }
-        sut.handle(event,null,(err,res)=>{
-            expect(err).not.toBeNull()
-            expect(err.error).not.toBeNull()
-            expect(err.error.code).toEqual(-32003)
-
-            expect(err.error.message).toEqual('txObj.verifySigntature() fail')
-            done();
-        })
-    });
-
-    
     test('handle token mismatch fail', done => {
         authMgrMock.verify.mockImplementationOnce( ()=>{ 
             return {
@@ -172,17 +173,15 @@ describe('RpcHandler', () => {
         sut.handle(event,null,(err,res)=>{
             expect(err).not.toBeNull()
             expect(err.error).not.toBeNull()
-            expect(err.error.code).toEqual(-32004)
+            expect(err.error.code).toEqual(-32003)
 
             expect(err.error.message).toEqual('token mismatch. sub does not match `from` field in tx')
             done();
         })
     });
 
-
-    test('handle getBalance() fail', done => {
-        ethereumMgrMock.getBalance.mockImplementationOnce( () => {throw new Error("error getting balance")})
-        
+    test('handle fundingMgr.fundingInfo fail', done => {
+        fundingMgrMock.fundingInfo.mockImplementationOnce( () => {throw new Error("fundingInfo fail")})
         const event = {
             pathParameters:{networkId:'0x4', authToken: authToken },
             body: {"jsonrpc":"2.0","method":"eth_sendRawTransaction","params":[rawTx],"id":67} 
@@ -190,16 +189,16 @@ describe('RpcHandler', () => {
         sut.handle(event,null,(err,res)=>{
             expect(err).not.toBeNull()
             expect(err.error).not.toBeNull()
-            expect(err.error.code).toEqual(-32005)
+            expect(err.error.code).toEqual(-32004)
 
-            expect(err.error.message).toEqual('error getting balance')
+            expect(err.error.message).toEqual('fundingInfo fail')
             done();
         })
     });
 
     test('funding not needed (failed relayed call)', done => {
         rpn.mockImplementationOnce( (opt) => { throw Error('fail')} );
-        ethereumMgrMock.getBalance.mockReturnValueOnce("20000000000000000000000")
+        fundingMgrMock.fundingInfo.mockReturnValueOnce({isFundingNeeded: false})
         const event = {
             pathParameters:{networkId:'0x4', authToken: authToken },
             body: {"jsonrpc":"2.0","method":"eth_sendRawTransaction","params":[rawTx],"id":67} 
@@ -215,7 +214,7 @@ describe('RpcHandler', () => {
 
     test('happy path funding not needed', done => {
         rpn.mockImplementationOnce( () => { return  {"id": 67, "jsonrpc": "2.0", "result": "0xtxHash"}} );
-        ethereumMgrMock.getBalance.mockReturnValueOnce("20000000000000000000000")
+        fundingMgrMock.fundingInfo.mockReturnValueOnce({isFundingNeeded: false})
         const event = {
             pathParameters:{networkId:'0x4', authToken: authToken },
             body: {"jsonrpc":"2.0","method":"eth_sendRawTransaction","params":[rawTx],"id":67} 
@@ -227,8 +226,13 @@ describe('RpcHandler', () => {
         })
     });
 
-    test('handle getGasPrice() fail', done => {
-        ethereumMgrMock.getGasPrice.mockImplementationOnce( () => {throw new Error("error getting gasprice")})
+    test('handle abusing gasPrice', done => {
+        fundingMgrMock.fundingInfo.mockImplementationOnce( () => {
+            return { 
+                isFundingNeeded: true,
+                isAbusingGasPrice: true
+            }    
+        })
         
         const event = {
             pathParameters:{networkId:'0x4', authToken: authToken },
@@ -239,14 +243,13 @@ describe('RpcHandler', () => {
             expect(err.error).not.toBeNull()
             expect(err.error.code).toEqual(-32005)
 
-            expect(err.error.message).toEqual('error getting gasprice')
+            expect(err.error.message).toEqual('abusing gasPrice')
             done();
         })
     });
 
-    test('handle abusing gasPrice', done => {
-        ethereumMgrMock.getGasPrice.mockReturnValueOnce(1)
-        
+    test('handle fundingMgr.fundingInfo fail', done => {
+        fundingMgrMock.fundTx.mockImplementationOnce( () => {throw new Error("fundTx fail")})
         const event = {
             pathParameters:{networkId:'0x4', authToken: authToken },
             body: {"jsonrpc":"2.0","method":"eth_sendRawTransaction","params":[rawTx],"id":67} 
@@ -256,12 +259,10 @@ describe('RpcHandler', () => {
             expect(err.error).not.toBeNull()
             expect(err.error.code).toEqual(-32006)
 
-            expect(err.error.message).toEqual('abusing gasPrice')
+            expect(err.error.message).toEqual('fundTx fail')
             done();
         })
     });
-
-
 
     test('handle happy path eth_sendRawTransaction', done => {
         const event = {

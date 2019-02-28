@@ -4,6 +4,7 @@ const createSecretsWrappedHandler = require("./lib/secrets_wrapper");
 
 //Load Mgrs
 const AuthMgr = require("./lib/authMgr");
+const FundingMgr = require("./lib/fundingMgr");
 const EthereumMgr = require("./lib/ethereumMgr");
 const SensuiVaultMgr = require("./lib/sensuiVaultMgr");
 
@@ -11,6 +12,7 @@ const SensuiVaultMgr = require("./lib/sensuiVaultMgr");
 let authMgr = new AuthMgr();
 let ethereumMgr = new EthereumMgr();
 let sensuiVaultMgr = new SensuiVaultMgr(ethereumMgr);
+let fundingMgr = new FundingMgr(ethereumMgr,sensuiVaultMgr);
 
 //Mgr that needs secrets handling
 const secretsMgrArr=[ethereumMgr];
@@ -19,7 +21,7 @@ const secretsMgrArr=[ethereumMgr];
 const RpcHandler = require("./handlers/rpc");
 
 //Instanciate handlers
-let rpcHandler  = createCorsHandler(new RpcHandler(authMgr,ethereumMgr,sensuiVaultMgr));
+let rpcHandler  = createCorsHandler(new RpcHandler(authMgr,fundingMgr,ethereumMgr,sensuiVaultMgr));
 
 //Exports for serverless
 exports.rpc   = createSecretsWrappedHandler(secretsMgrArr,rpcHandler);
