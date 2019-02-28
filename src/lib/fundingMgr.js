@@ -88,8 +88,9 @@ module.exports = class FundingMgr {
         //TODO: Check if funder have enough balance on the sensuiVault to do 
         // the funding
 
+        let fundingTxHash;
         try {
-            await this.sensuiVaultMgr.fund(
+            fundingTxHash=await this.sensuiVaultMgr.fund(
                 networkId,
                 decodedTx.from,
                 funder,
@@ -98,5 +99,7 @@ module.exports = class FundingMgr {
             console.log("this.sensuiVaultMgr.fund error: "+error.message)
             throw error;
         }
+
+        //TOOD: Store fundingTxHash and decodedTx.txHash in db
     }
 }

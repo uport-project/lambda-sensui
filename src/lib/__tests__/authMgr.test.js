@@ -52,7 +52,7 @@ describe('AuthMgr', () => {
             })
         })
 
-        test.skip('valid token', (done)=> {
+        test('valid token', (done)=> {
             sut.verify(validToken)
             .then((resp)=> {
                 expect(resp).not.toBeNull();

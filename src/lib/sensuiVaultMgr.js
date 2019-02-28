@@ -38,7 +38,7 @@ module.exports = class SensuiVaultMgr {
 
         //Get an available address/worker
         const gasPrice =  await this.ethereumMgr.getGasPrice(networkId);
-        const gas = 50000;
+        const gas = 70000;
         const minBalance= gas * gasPrice * 1.1;
         const from = await this.ethereumMgr.getAvailableAddress(networkId,minBalance);
     
@@ -58,6 +58,8 @@ module.exports = class SensuiVaultMgr {
         console.log(txOptions);
         
         const txHash = await sensuiVault.fund(receiver,funder,amount,txOptions);
+
+        return txHash;
         
     }
 
