@@ -4,6 +4,7 @@ const Transaction = require ('ethereumjs-tx');
 const networks = require('../lib/networks');
 const SignerProvider = require("ethjs-provider-signer");
 const Eth = require('ethjs-query');
+const EthContract = require('ethjs-contract');
 
 const MIN_GAS_PRICE = 1000000000; // 1 Gwei
 
@@ -72,7 +73,7 @@ module.exports = class EthereumMgr {
     //Return network gas price
     async getGasPrice(networkId) {
         if (!networkId) throw Error("no networkId");
-        if (!this.eths[networkId]) throw "no eth for networkId";
+        if (!this.eths[networkId]) throw Error("no eth for networkId");
         
         try {
           const networkGasPrice = (await this.eths[networkId].gasPrice()).toNumber();
@@ -87,6 +88,13 @@ module.exports = class EthereumMgr {
         return this.gasPrices[networkId];
       }
 
+    //Return contract object
+    async getContract(networkId,abi) {
+      if (!networkId) throw Error("no networkId");
+      if (!abi) throw Error("no abi");
+      if (!this.eths[networkId]) throw Error("no eth for networkId");
+      return (new EthContract(this.eths[networkId]))(abi);
+    }
     
 }
 

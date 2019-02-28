@@ -5,9 +5,10 @@ const rp = require('request-promise-native');
 const Transaction = require ('ethereumjs-tx');
 
 module.exports = class RpcHandler {
-    constructor (authMgr,etherumMgr) {
+    constructor (authMgr,etherumMgr,sensuiVaultMgr) {
         this.authMgr=authMgr;
         this.etherumMgr=etherumMgr;
+        this.sensuiVaultMgr=sensuiVaultMgr;
     }
 
     async handle(event,context, cb) {
@@ -235,7 +236,9 @@ module.exports = class RpcHandler {
         console.log("topUpTo: "+topUpTo)
         console.log("amountToFund: "+amountToFund)
         
-        //TODO: 
+        
+
+
         const resp= jsonRpcProtocol.format.response(jsonRpcMsg.id, txHash )
 
         cb(null,JSON.parse(resp))

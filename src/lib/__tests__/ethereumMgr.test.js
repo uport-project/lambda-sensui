@@ -111,7 +111,7 @@ describe('EthereumMgr', () => {
               done();
             })
             .catch(err => {
-              expect(err).toEqual("no eth for networkId");
+              expect(err.message).toEqual("no eth for networkId");
               done();
             });
         });
@@ -149,6 +149,54 @@ describe('EthereumMgr', () => {
               done();
             });
           });
+    });
+
+    describe("getContract()", () => {
+      test("no networkId", done => {
+          sut
+            .getContract(null)
+            .then(resp => {
+              fail("shouldn't return");
+              done();
+            })
+            .catch(err => {
+              expect(err.message).toEqual("no networkId");
+              done();
+            });
+        });
+        test("no abi", done => {
+          sut
+            .getContract("0x4",null)
+            .then(resp => {
+              fail("shouldn't return");
+              done();
+            })
+            .catch(err => {
+              expect(err.message).toEqual("no abi");
+              done();
+            });
+        });
+
+      test("no eth for networkId", done => {
+        sut
+          .getContract("bad",[])
+          .then(resp => {
+            fail("shouldn't return");
+            done();
+          })
+          .catch(err => {
+            expect(err.message).toEqual("no eth for networkId");
+            done();
+          });
+      });
+
+      test("happy path", done => {
+        sut.getContract("0x4",[]).then(resp => {
+          expect(resp).not.toBeNull()
+          done();
+        });
+      });
+
     });
 
 });
