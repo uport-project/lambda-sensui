@@ -4,7 +4,6 @@ module.exports = class FundingMgr {
     constructor(ethereumMgr,sensuiVaultMgr) {
         this.ethereumMgr=ethereumMgr;
         this.sensuiVaultMgr=sensuiVaultMgr;
-        
     }
   
     async decodeTx(txHex) {

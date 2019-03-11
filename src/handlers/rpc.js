@@ -85,6 +85,7 @@ module.exports = class RpcHandler {
         console.log(txDecoded);
 
         //Check if `from` in the tx is the `sub` in the authToken;
+        /*
         try{
             if(txDecoded.from != verifiedAuthToken.payload.sub) throw Error("token mismatch. sub does not match `from` field in tx")
         } catch (error){
@@ -94,7 +95,8 @@ module.exports = class RpcHandler {
             console.log(err)
             cb(err);
             return;
-        } 
+        }
+        */ 
 
         //Get fundingInfo
         let fundingInfo;

@@ -5,22 +5,23 @@ plugins:
   - serverless-kms-secrets
 
 provider:
-  name: aws
-  runtime: nodejs8.10
-  stage: develop
-  region: us-west-2
-  iamRoleStatements:
-    - Effect: Allow
-      Action:
-      - KMS:Decrypt
-      Resource: ${self:custom.kmsSecrets.keyArn}
-  environment:
+   name: aws
+   runtime: nodejs8.10
+   stage: develop
+   region: us-west-2
+   iamRoleStatements:
+     - Effect: Allow
+       Action:
+         - KMS:Decrypt
+       Resource: ${self:custom.kmsSecrets.keyArn} 
+   environment:
       SECRETS: ${self:custom.kmsSecrets.secrets.SECRETS}
-
+ 
 custom:
-  serverless-kms-secrets:
+   serverless-kms-secrets:
     secretsFile: kms-secrets.${opt:stage, self:provider.stage}.${opt:region, self:provider.region}.yml
-  kmsSecrets: ${file(kms-secrets.${opt:stage, self:provider.stage}.${opt:region, self:provider.region}.yml)}
+   kmsSecrets: ${file(kms-secrets.${opt:stage, self:provider.stage}.${opt:region, self:provider.region}.yml)}
+
 
 functions:
   rpc:
