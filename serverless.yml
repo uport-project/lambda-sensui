@@ -3,6 +3,7 @@ service: lambda-sensui
 plugins:
   - serverless-offline
   - serverless-kms-secrets
+  - serverless-domain-manager
 
 provider:
    name: aws
@@ -21,6 +22,13 @@ custom:
    serverless-kms-secrets:
     secretsFile: kms-secrets.${opt:stage, self:provider.stage}.${opt:region, self:provider.region}.yml
    kmsSecrets: ${file(kms-secrets.${opt:stage, self:provider.stage}.${opt:region, self:provider.region}.yml)}
+   domainName: 
+      develop: api.uport.space
+      master: api.uport.me
+   customDomain:
+    domainName: ${self:custom.domainName.${opt:stage, self:provider.stage}}
+    basePath: sensui
+    createRoute53Record: false
 
 
 functions:

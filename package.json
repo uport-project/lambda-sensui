@@ -34,6 +34,7 @@
     "ethjs-signer": "^0.1.1",
     "ganache-cli": "^6.3.0",
     "jest": "^23.6.0",
+    "serverless-domain-manager": "^3.1.0",
     "serverless-offline": "^4.4.2",
     "solidity-coverage": "^0.5.11",
     "truffle": "^5.0.5",
