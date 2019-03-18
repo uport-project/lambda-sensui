@@ -114,6 +114,7 @@ module.exports = class RpcHandler {
         //Check if funding is not needed
         if(!fundingInfo.isFundingNeeded){
             //Relay to networkEndpoint
+            console.log("No funding needed. Relaying.")
             await this._relay(networkId,jsonRpcMsg,cb);
             return;
         }
@@ -134,7 +135,8 @@ module.exports = class RpcHandler {
                 networkId,
                 txDecoded,
                 fundingInfo,
-                verifiedAuthToken.payload.iss)
+                verifiedAuthToken.payload.iss.replace("did:ethr:","")
+            )
         } catch (error){
             console.log("this.fundingMgr.fundTx() error: "+error.message)
             const jsonRpcError = new jsonRpcProtocol.JsonRpcError(error.message, -32006)

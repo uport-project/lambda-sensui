@@ -21,12 +21,12 @@ contract SensuiVault {
   }
 
   modifier _onlyOwner() {
-    require(msg.sender == owner);
+    require(msg.sender == owner, "only owner allowed to execute");
     _;
   }
 
   modifier _onlyOperator() {
-    require(operators[msg.sender]);
+    require(operators[msg.sender], "only operators allowed to execute");
     _;
   }
 
@@ -55,7 +55,7 @@ contract SensuiVault {
       uint256 operatorFee = tx.gasprice * 70000;
       
       uint totalAmount = amount + sensuiFee + operatorFee;
-      require(balances[funder] >= totalAmount);
+      require(balances[funder] >= totalAmount,"funder insufficient balance");
       balances[funder] -= totalAmount;
       receiver.transfer(amount);
       balances[owner] += sensuiFee;

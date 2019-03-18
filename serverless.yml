@@ -32,4 +32,12 @@ functions:
      - http:
          path: rpc/{networkId}/{authToken}
          method: post
+  new_block:
+    description: New Block handler
+    handler: src/api_handler.new_block
+    timeout: 30
+    events:
+     - http:
+         path: new_block/{networkId}
+         method: get
   

@@ -35,11 +35,11 @@ module.exports = class SensuiVaultMgr {
         if (!funder) throw "no funder";
         if (!amount) throw "no amount";
 
-        const sensuiVault=this.getSensuiVault(networkId);
+        const sensuiVault=await this.getSensuiVault(networkId);
 
         //Get an available address/worker
         const gasPrice =  await this.ethereumMgr.getGasPrice(networkId);
-        const gas = 70000;
+        const gas = 100000
         const minBalance= gas * gasPrice * 1.1;
         const from = await this.ethereumMgr.getAvailableAddress(networkId,minBalance);
     
@@ -57,8 +57,13 @@ module.exports = class SensuiVaultMgr {
 
         console.log("Tx Options");
         console.log(txOptions);
+
+        console.log("sensuiVault('"+sensuiVault.address+"').fund('"+receiver+"','"+funder+"',"+amount+")");
         
         const txHash = await sensuiVault.fund(receiver,funder,amount,txOptions);
+
+        //Store txHash with worker address
+        await this.ethereumMgr.updateAccount(networkId,from,txHash);
 
         return txHash;
         
