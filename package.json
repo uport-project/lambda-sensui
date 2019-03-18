@@ -31,7 +31,6 @@
   "devDependencies": {
     "aws-sdk-mock": "^1.7.0",
     "ethjs": "^0.4.0",
-    "ethjs-signer": "^0.1.1",
     "ganache-cli": "^6.3.0",
     "jest": "^23.6.0",
     "serverless-domain-manager": "^3.1.0",
@@ -49,6 +48,7 @@
     "ethjs-contract": "^0.2.3",
     "ethjs-provider-signer": "^0.1.4",
     "ethjs-query": "^0.3.8",
+    "ethjs-signer": "^0.1.1",
     "ethr-did-resolver": "^0.2.0",
     "json-rpc-protocol": "^0.13.1",
     "pg": "^7.8.2",

@@ -1,10 +1,10 @@
 const { EthHdWallet } = require('eth-hd-wallet')
-const networks = require('../lib/networks');
+const EthContract = require('ethjs-contract');
 const SignerProvider = require("ethjs-provider-signer");
 const sign = require('ethjs-signer').sign;
 const Eth = require('ethjs-query');
-const EthContract = require('ethjs-contract');
 const { Client } = require ("pg");
+const networks = require('../lib/networks');
 
 
 //TODO define MIN_GAS_PRICE per network
