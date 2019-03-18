@@ -29,9 +29,10 @@ describe('EthereumMgr', () => {
         expect(sut.isSecretsSet()).toEqual(true);
         expect(sut.pgUrl).not.toBeUndefined();
         expect(sut.seed).not.toBeUndefined();
-        expect(sut.signers).not.toBeUndefined();
+        expect(sut.eths).not.toBeUndefined();
+        expect(sut.gasPrices).not.toBeUndefined();
         expect(sut.addresses).not.toBeUndefined();
-        expect(sut.addresses.length).toEqual(21);
+        expect(sut.addresses.length).toEqual(5);
       });
 
     //no pgUrl here
@@ -191,7 +192,7 @@ describe('EthereumMgr', () => {
       });
 
       test("happy path", done => {
-        sut.getContract("0x4",[]).then(resp => {
+        sut.getContract("4",[]).then(resp => {
           expect(resp).not.toBeNull()
           done();
         });
