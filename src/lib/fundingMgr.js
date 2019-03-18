@@ -1,10 +1,21 @@
 const Transaction = require ('ethereumjs-tx');
+const { Client } = require ("pg");
 
 module.exports = class FundingMgr {
     constructor(ethereumMgr,sensuiVaultMgr) {
         this.ethereumMgr=ethereumMgr;
         this.sensuiVaultMgr=sensuiVaultMgr;
+
+        this.pgUrl = null;
         
+    }
+
+    isSecretsSet() {
+        return this.pgUrl !== null;
+    }
+
+    setSecrets(secrets) {
+        this.pgUrl = secrets.PG_URL;
     }
   
     async decodeTx(txHex) {
@@ -36,6 +47,7 @@ module.exports = class FundingMgr {
         decodedTx.txGasPrice = parseInt(txObj.gasPrice.toString('hex'),16)
         decodedTx.txGasLimit = parseInt(txObj.gasLimit.toString('hex'),16)
         decodedTx.txHash = "0x"+txObj.hash().toString('hex')
+        decodedTx.raw = txHex
 
         return decodedTx;       
     }
@@ -100,6 +112,127 @@ module.exports = class FundingMgr {
             throw error;
         }
 
-        //TOOD: Store fundingTxHash and decodedTx.txHash in db
+        console.log(fundingTxHash);
+
+        //Store decodedTx.txHash in db
+        await this.storeFunding(decodedTx.txHash,networkId,decodedTx);
     }
+
+    async storeFunding(txHash,networkId,decodedTx){
+        if (!txHash) throw Error("no txHash");
+        if (!networkId) throw Error("no networkId");
+        if (!decodedTx) throw Error("no decodedTx");
+        if (!this.pgUrl) throw Error("no pgUrl set");
+    
+        const client = new Client({
+          connectionString: this.pgUrl
+        });
+    
+        try {
+          await client.connect();
+          const res = await client.query(
+            "INSERT INTO fundings(tx_hash,network,decoded_tx) \
+                 VALUES ($1,$2,$3)",
+            [txHash, networkId,decodedTx]
+          );
+        } catch (e) {
+          throw e;
+        } finally {
+          await client.end();
+        }
+    }
+
+    async getPending(networkId){
+        if (!networkId) throw Error("no networkId");
+        if (!this.pgUrl) throw Error("no pgUrl set");
+    
+        const client = new Client({
+          connectionString: this.pgUrl
+        });
+    
+        try {
+          await client.connect();
+          const res = await client.query(
+            "SELECT tx_hash,network,decoded_tx \
+               FROM fundings \
+              WHERE network=$1",
+            [networkId]
+          );
+          return res.rows;
+        } catch (e) {
+          throw e;
+        } finally {
+          await client.end();
+        }
+    }
+
+    async remove(networkId,txHash){
+        if (!networkId) throw Error("no networkId");
+        if (!txHash) throw Error("no txHash");
+        if (!this.pgUrl) throw Error("no pgUrl set");
+    
+        const client = new Client({
+          connectionString: this.pgUrl
+        });
+    
+        try {
+          await client.connect();
+          const res = await client.query(
+            "DELETE FROM fundings \
+              WHERE network=$1 \
+                AND tx_hash=$2",
+            [networkId,txHash]
+          );
+        } catch (e) {
+          throw e;
+        } finally {
+          await client.end();
+        }
+
+    }
+
+    async retry(networkId){
+        if (!networkId) throw "no networkId";
+
+        const pending=await this.getPending(networkId);
+  
+        let promises=[];
+
+        for(let i=0;i<pending.length;i++){
+          const pend=pending[i];
+          console.log("checking pending: "+pend.tx_hash)
+  
+          //Checking pending tx
+          promises.push( new Promise( async (done) => {
+
+            //Check if tx is mined already
+            const txReceipt=await this.ethereumMgr.getTransactionReceipt(networkId,pend.tx_hash);
+            //console.log(txReceipt);
+            if(txReceipt!=null){
+
+                console.log(txReceipt);
+                console.log("["+pend.tx_hash+"]    ...removing funding tx")
+                await this.remove(networkId,pend.tx_hash);
+                console.log("["+pend.tx_hash+"]    ...removed!")
+
+            }else{
+
+                //Checking if funding is still needed
+                const fundingInfo=await this.fundingInfo(networkId,pend.decoded_tx)
+                if(!fundingInfo.isFundingNeeded){
+                    //Relay to networkEndpoint
+                    console.log("["+pend.tx_hash+"] No funding needed. Relaying.")
+                    await this.ethereumMgr.sendRawTransaction(networkId,pend.decoded_tx.raw);
+                    return;
+                }
+            }
+            done();
+          }));
+  
+  
+        } // /for 
+  
+        Promise.all(promises)
+      }
+      
 }
