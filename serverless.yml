@@ -48,4 +48,13 @@ functions:
      - http:
          path: new_block/{networkId}
          method: get
+  fund:
+    description: Fund handler
+    handler: src/api_handler.fund
+    timeout: 30
+    events:
+     - http:
+         path: fund/{networkId}/{authToken}
+         method: post
+  
   
