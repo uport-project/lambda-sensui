@@ -20,6 +20,11 @@ module.exports = function(deployer,network,accounts) {
         console.log("funder funded");
       })
     }
+
+    if(network == 'rinkeby'){
+      sensuiVault.addOperator('0x5175fc732a96944a219d8055b35fd487085637f9')
+      
+    }
     
   });
 };
