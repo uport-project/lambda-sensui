@@ -33,18 +33,6 @@ module.exports = class FundHandler {
         }
         console.log("authToken: "+authToken)
 
-
-        let verifiedAuthToken;
-        try {
-            //This can take up to 3 secs.
-            verifiedAuthToken = await this.authMgr.verify(authToken);
-        } catch (error){
-            console.log("this.authMgr.verify() error: "+error.message)
-            cb({code: 401, message: "undefined networkId"}); return;
-        } 
-        console.log(verifiedAuthToken);
-
-
         //Parse body
         let body;
         try{
@@ -55,11 +43,23 @@ module.exports = class FundHandler {
 
         //Check if receiver is present
         const receiver = body.receiver
-        if(!receiver){ cb({code: 403, message: "no receiver"}); return; }
+        if(!receiver){ cb({code: 403, message: "receiver parameter missing"}); return; }
 
         //Check if amount is present
         const amount = body.amount
-        if(!amount){ cb({code: 403, message: "no amount"}); return; }
+        if(!amount){ cb({code: 403, message: "amount parameter missing"}); return; }
+
+
+        //Verify authToken
+        let verifiedAuthToken;
+        try {
+            //This can take up to 3 secs.
+            verifiedAuthToken = await this.authMgr.verify(authToken);
+        } catch (error){
+            console.log("this.authMgr.verify() error: "+error.message)
+            cb({code: 401, message: error.message}); return;
+        } 
+        console.log(verifiedAuthToken);
 
 
         //Fund address
@@ -69,7 +69,7 @@ module.exports = class FundHandler {
                 networkId,
                 receiver,
                 amount,
-                verifiedAuthToken.payload.iss.replace("did:ethr:","")
+                verifiedAuthToken.issuer.replace("did:ethr:","")
             )
         } catch (error){
             console.log("this.fundingMgr.fundTx() error: "+error.message)
