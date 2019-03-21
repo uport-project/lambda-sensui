@@ -283,4 +283,74 @@ describe('FundingMgr', () => {
         })
     });
 
+    describe("fundAddr()", () => {
+
+        test('no networkId', (done)=> {
+            sut.fundAddr()
+            .then((resp)=> {
+                fail("shouldn't return"); done()
+            })
+            .catch( (err)=>{
+                expect(err.message).toEqual('no networkId')
+                done()
+            })
+        })
+
+        test('no receiver', (done)=> {
+            sut.fundAddr("0x4")
+            .then((resp)=> {
+                fail("shouldn't return"); done()
+            })
+            .catch( (err)=>{
+                expect(err.message).toEqual('no receiver')
+                done()
+            })
+        })
+        
+        test('no amount', (done)=> {
+            sut.fundAddr("0x4","0xreceiver")
+            .then((resp)=> {
+                fail("shouldn't return"); done()
+            })
+            .catch( (err)=>{
+                expect(err.message).toEqual('no amount')
+                done()
+            })
+        })
+
+        test('no funder', (done)=> {
+            sut.fundAddr("0x4","0xreceiver",1234)
+            .then((resp)=> {
+                fail("shouldn't return"); done()
+            })
+            .catch( (err)=>{
+                expect(err.message).toEqual('no funder')
+                done()
+            })
+        })
+
+        test('sensuiVaultMgr.fund() fail', (done)=> {
+            sensuiVaultMgrMock.fund.mockImplementationOnce( () => {throw new Error("fund() fail")})
+            sut.fundAddr("0x4","0xreceiver",1234,"0xfunder")
+            .then((resp)=> {
+                fail("shouldn't return"); done()
+            })
+            .catch( (err)=>{
+                expect(err.message).toEqual('fund() fail')
+                done()
+            })
+        })
+
+
+        test('happy path', (done)=>{
+            sensuiVaultMgrMock.fund.mockImplementationOnce( () => "0xfundTxHash")
+            sut.fundAddr("0x4","0xreceiver",1234,"0xfunder")
+            .then((resp)=> {
+                expect(resp).toEqual("0xfundTxHash")
+                done();
+            })
+            
+        })
+    });
+
 });
