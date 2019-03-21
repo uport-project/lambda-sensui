@@ -20,4 +20,23 @@ describe('apiHandler', () => {
         })
     });
 
+    test('new_block()', done => {
+        apiHandler.new_block({},{},(err,res)=>{
+            expect(err).toBeNull()
+            expect(res).not.toBeNull()
+            
+            done();
+        })
+    });
+
+    test('fund()', done => {
+        apiHandler.fund({},{},(err,res)=>{
+            expect(err).toBeNull()
+            expect(res).not.toBeNull()
+            
+            done();
+        })
+    });
+
+
 });

@@ -1,3 +1,12 @@
+jest.mock('pg')
+let { Client } = require('pg')
+
+let pgClientMock={
+    connect:jest.fn(),
+    end:jest.fn()
+}
+Client.mockImplementation(()=>{return pgClientMock});
+
 const sutMgr = require('../fundingMgr');
 
 describe('FundingMgr', () => {
@@ -45,6 +54,52 @@ describe('FundingMgr', () => {
 
     test('empty constructor', () => {
         expect(sut).not.toBeUndefined();
+        expect(sut.pgUrl).toBeNull();
+    });
+
+    test("is isSecretsSet", () => {
+        let secretSet = sut.isSecretsSet();
+        expect(secretSet).toEqual(false);
+    });
+
+    test("storeFunding() no pgUrl set", done => {
+        sut.storeFunding("t", "n","d").then(resp => {
+            fail("shouldn't return");
+            done();
+          })
+          .catch(err => {
+            expect(err.message).toEqual("no pgUrl set");
+            done();
+          });
+    });
+
+    test("getPending() no pgUrl set", done => {
+        sut.getPending("n").then(resp => {
+            fail("shouldn't return");
+            done();
+          })
+          .catch(err => {
+            expect(err.message).toEqual("no pgUrl set");
+            done();
+          });
+    });
+
+    test("remove() no pgUrl set", done => {
+        sut.remove("n","t").then(resp => {
+            fail("shouldn't return");
+            done();
+          })
+          .catch(err => {
+            expect(err.message).toEqual("no pgUrl set");
+            done();
+          });
+    });
+
+    test("setSecrets", () => {
+        expect(sut.isSecretsSet()).toEqual(false);
+        sut.setSecrets({ PG_URL: "fakepsql" });
+        expect(sut.isSecretsSet()).toEqual(true);
+        expect(sut.pgUrl).not.toBeUndefined();
     });
 
     describe("decodeTx()", () => {
@@ -210,9 +265,18 @@ describe('FundingMgr', () => {
         })
 
 
-        test.skip('happy path', (done)=>{
+        test('happy path', (done)=>{
+            pgClientMock.query = jest.fn(() => { return Promise.resolve();});
             sut.fundTx("0x4",decodedTx,fundingInfo,"0xfunder")
             .then((resp)=> {
+                expect(pgClientMock.connect).toBeCalled();
+                expect(pgClientMock.query).toBeCalled();
+                expect(pgClientMock.query).toBeCalledWith(
+                "INSERT INTO fundings(tx_hash,network,decoded_tx) \
+                 VALUES ($1,$2,$3)",
+                [decodedTx.txHash,"0x4",decodedTx]
+                );
+                expect(pgClientMock.end).toBeCalled();
                 done();
             })
             
