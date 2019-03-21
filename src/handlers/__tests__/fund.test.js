@@ -1,6 +1,6 @@
 const sutHandler = require('../fund');
 
-describe('RpcHandler', () => {
+describe('FundHandler', () => {
     
     let sut;
     const authToken="faketoken";
