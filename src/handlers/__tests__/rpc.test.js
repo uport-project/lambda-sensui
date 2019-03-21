@@ -157,7 +157,8 @@ describe('RpcHandler', () => {
         })
     });
 
-    test.skip('handle token mismatch fail', done => {
+    /* tx.from != token.sub  not verified 
+    test('handle token mismatch fail', done => {
         authMgrMock.verify.mockImplementationOnce( ()=>{ 
             return {
                 payload: {
@@ -179,8 +180,9 @@ describe('RpcHandler', () => {
             done();
         })
     });
+    */
 
-    test.skip('handle fundingMgr.fundingInfo fail', done => {
+    test('handle fundingMgr.fundingInfo fail', done => {
         fundingMgrMock.fundingInfo.mockImplementationOnce( () => {throw new Error("fundingInfo fail")})
         const event = {
             pathParameters:{networkId:'4', authToken: authToken },
@@ -248,7 +250,7 @@ describe('RpcHandler', () => {
         })
     });
 
-    test.skip('handle fundingMgr.fundingInfo fail', done => {
+    test('handle fundingMgr.fundTx fail', done => {
         fundingMgrMock.fundTx.mockImplementationOnce( () => {throw new Error("fundTx fail")})
         const event = {
             pathParameters:{networkId:'4', authToken: authToken },
@@ -264,7 +266,7 @@ describe('RpcHandler', () => {
         })
     });
 
-    test.skip('handle happy path eth_sendRawTransaction', done => {
+    test('handle happy path eth_sendRawTransaction', done => {
         const event = {
             pathParameters:{networkId:'4', authToken: authToken },
             body: {"jsonrpc":"2.0","method":"eth_sendRawTransaction","params":[rawTx],"id":67} 

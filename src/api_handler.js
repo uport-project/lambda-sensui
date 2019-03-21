@@ -21,11 +21,14 @@ const secretsMgrArr=[ethereumMgr,fundingMgr];
 //Load handlers
 const NewBlockHandler = require("./handlers/new_block");
 const RpcHandler = require("./handlers/rpc");
+const FundHandler = require("./handlers/fund");
 
 //Instanciate handlers
 let rpcHandler  = createCorsHandler(new RpcHandler(authMgr,fundingMgr,ethereumMgr,sensuiVaultMgr));
 let newBlockHandler  = createJsendHandler(new NewBlockHandler(ethereumMgr,fundingMgr));
+let fundHandler  = createJsendHandler(new FundHandler(authMgr,fundingMgr));
 
 //Exports for serverless
 exports.rpc   = createSecretsWrappedHandler(secretsMgrArr,rpcHandler);
 exports.new_block   = createSecretsWrappedHandler(secretsMgrArr,newBlockHandler);
+exports.fund   = createSecretsWrappedHandler(secretsMgrArr,fundHandler);

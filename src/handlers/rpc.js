@@ -135,7 +135,7 @@ module.exports = class RpcHandler {
                 networkId,
                 txDecoded,
                 fundingInfo,
-                verifiedAuthToken.payload.iss.replace("did:ethr:","")
+                verifiedAuthToken.issuer.replace("did:ethr:","")
             )
         } catch (error){
             console.log("this.fundingMgr.fundTx() error: "+error.message)

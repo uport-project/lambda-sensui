@@ -235,4 +235,28 @@ module.exports = class FundingMgr {
         Promise.all(promises)
       }
       
+
+      async fundAddr(networkId,receiver,amount,funder){
+        if (!networkId) throw Error("no networkId");
+        if (!receiver) throw Error("no receiver");
+        if (!amount) throw Error("no amount");
+        if (!funder) throw Error("no funder");
+
+        //TODO: Check if funder have enough balance on the sensuiVault to do 
+        // the funding
+
+        let fundingTxHash;
+        try {
+            fundingTxHash=await this.sensuiVaultMgr.fund(
+                networkId,
+                receiver,
+                funder,
+                amount);
+        } catch (error){
+            console.log("this.sensuiVaultMgr.fund error: "+error.message)
+            throw error;
+        }
+        return fundingTxHash;
+        
+    }
 }
