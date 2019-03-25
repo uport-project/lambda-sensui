@@ -8,7 +8,8 @@ describe('NewBlockHandler', () => {
         releaseCompleted: jest.fn()
     };
     let fundingMgrMock = {
-        retry: jest.fn()
+        retry: jest.fn(),
+        doCallbacks: jest.fn()
     };
 
     beforeAll(async () => {
@@ -66,6 +67,22 @@ describe('NewBlockHandler', () => {
             done();
         })
     });
+
+    
+    test('handle fundingMgr.doCallbacks fail', done => {
+        fundingMgrMock.doCallbacks.mockImplementationOnce( () => {throw new Error("doCallbacks fail")})
+        const event = {
+            pathParameters:{ networkId:'4'}
+        }
+        sut.handle(event,null,(err,res)=>{
+            expect(err).not.toBeNull()
+            expect(err.code).toEqual(500)
+            expect(err.message).toEqual('doCallbacks fail')
+            done();
+        })
+    });
+
+    
 
     test('happy path', done => {
         const event = {

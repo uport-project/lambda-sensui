@@ -73,8 +73,8 @@ describe('FundingMgr', () => {
           });
     });
 
-    test("getPending() no pgUrl set", done => {
-        sut.getPending("n").then(resp => {
+    test("getPendingFunding() no pgUrl set", done => {
+        sut.getPendingFunding("n").then(resp => {
             fail("shouldn't return");
             done();
           })
@@ -84,8 +84,8 @@ describe('FundingMgr', () => {
           });
     });
 
-    test("remove() no pgUrl set", done => {
-        sut.remove("n","t").then(resp => {
+    test("removeFunding() no pgUrl set", done => {
+        sut.removeFunding("n","t").then(resp => {
             fail("shouldn't return");
             done();
           })
@@ -341,8 +341,9 @@ describe('FundingMgr', () => {
             })
         })
 
-
-        test('happy path', (done)=>{
+        
+        test('happy path without callback', (done)=>{
+            pgClientMock.query = jest.fn(() => { return Promise.resolve();});
             sensuiVaultMgrMock.fund.mockImplementationOnce( () => "0xfundTxHash")
             sut.fundAddr("0x4","0xreceiver",1234,"0xfunder")
             .then((resp)=> {
@@ -351,6 +352,30 @@ describe('FundingMgr', () => {
             })
             
         })
+
+
+        test('happy path with callback', (done)=>{
+            pgClientMock.query = jest.fn(() => { return Promise.resolve();});
+            sensuiVaultMgrMock.fund.mockImplementationOnce( () => "0xfundTxHash")
+            const callbackUrl="https://callback"
+            sut.fundAddr("0x4","0xreceiver",1234,"0xfunder",callbackUrl)
+            .then((resp)=> {
+                expect(pgClientMock.connect).toBeCalled();
+                expect(pgClientMock.query).toBeCalled();
+                expect(pgClientMock.query).toBeCalledWith(
+                "INSERT INTO callbacks(tx_hash,network,callback_url) \
+                VALUES ($1,$2,$3)",
+                ['0xfundTxHash',"0x4",callbackUrl]
+                );
+                expect(pgClientMock.end).toBeCalled();
+                expect(resp).toEqual("0xfundTxHash")
+                done();
+            })
+            
+        })
     });
+
+
+
 
 });
