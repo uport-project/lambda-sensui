@@ -49,6 +49,7 @@ module.exports = class FundHandler {
         const amount = body.amount
         if(!amount){ cb({code: 403, message: "amount parameter missing"}); return; }
 
+        const callback = body.callback;
 
         //Verify authToken
         let verifiedAuthToken;
@@ -69,7 +70,8 @@ module.exports = class FundHandler {
                 networkId,
                 receiver,
                 amount,
-                verifiedAuthToken.issuer.replace("did:ethr:","")
+                verifiedAuthToken.issuer.replace("did:ethr:",""),
+                callback
             )
         } catch (error){
             console.log("this.fundingMgr.fundTx() error: "+error.message)

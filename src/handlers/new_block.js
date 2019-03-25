@@ -41,6 +41,14 @@ module.exports = class NewBlockHandler {
             cb({code: 500, message: error.message}); return;
         }
 
+        // do callbacks
+        try {
+            await this.fundingMgr.doCallbacks(networkId);
+        } catch (error) {
+            console.log(error);
+            cb({code: 500, message: error.message}); return;
+        }
+
         cb(null,"OK")
         return;
     }

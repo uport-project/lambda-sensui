@@ -1,4 +1,5 @@
 const Transaction = require ('ethereumjs-tx');
+const rp = require('request-promise-native');
 const { Client } = require ("pg");
 
 module.exports = class FundingMgr {
@@ -142,7 +143,7 @@ module.exports = class FundingMgr {
         }
     }
 
-    async getPending(networkId){
+    async getPendingFunding(networkId){
         if (!networkId) throw Error("no networkId");
         if (!this.pgUrl) throw Error("no pgUrl set");
     
@@ -166,7 +167,7 @@ module.exports = class FundingMgr {
         }
     }
 
-    async remove(networkId,txHash){
+    async removeFunding(networkId,txHash){
         if (!networkId) throw Error("no networkId");
         if (!txHash) throw Error("no txHash");
         if (!this.pgUrl) throw Error("no pgUrl set");
@@ -194,7 +195,7 @@ module.exports = class FundingMgr {
     async retry(networkId){
         if (!networkId) throw "no networkId";
 
-        const pending=await this.getPending(networkId);
+        const pending=await this.getPendingFunding(networkId);
   
         let promises=[];
 
@@ -212,7 +213,7 @@ module.exports = class FundingMgr {
 
                 console.log(txReceipt);
                 console.log("["+pend.tx_hash+"]    ...removing funding tx")
-                await this.remove(networkId,pend.tx_hash);
+                await this.removeFunding(networkId,pend.tx_hash);
                 console.log("["+pend.tx_hash+"]    ...removed!")
 
             }else{
@@ -236,27 +237,154 @@ module.exports = class FundingMgr {
       }
       
 
-      async fundAddr(networkId,receiver,amount,funder){
-        if (!networkId) throw Error("no networkId");
-        if (!receiver) throw Error("no receiver");
-        if (!amount) throw Error("no amount");
-        if (!funder) throw Error("no funder");
+    async fundAddr(networkId,receiver,amount,funder,callback){
+      if (!networkId) throw Error("no networkId");
+      if (!receiver) throw Error("no receiver");
+      if (!amount) throw Error("no amount");
+      if (!funder) throw Error("no funder");
 
-        //TODO: Check if funder have enough balance on the sensuiVault to do 
-        // the funding
+      //TODO: Check if funder have enough balance on the sensuiVault to do 
+      // the funding
 
-        let fundingTxHash;
-        try {
-            fundingTxHash=await this.sensuiVaultMgr.fund(
-                networkId,
-                receiver,
-                funder,
-                amount);
-        } catch (error){
-            console.log("this.sensuiVaultMgr.fund error: "+error.message)
-            throw error;
+      let fundingTxHash;
+      try {
+          fundingTxHash=await this.sensuiVaultMgr.fund(
+              networkId,
+              receiver,
+              funder,
+              amount);
+      } catch (error){
+          console.log("this.sensuiVaultMgr.fund error: "+error.message)
+          throw error;
+      }
+
+        if(callback){
+          await this.storeCallback(fundingTxHash,networkId,callback);
         }
+
         return fundingTxHash;
         
+    }
+
+
+    async storeCallback(txHash,networkId,callbackUrl){
+      if (!txHash) throw Error("no txHash");
+      if (!networkId) throw Error("no networkId");
+      if (!callbackUrl) throw Error("no callbackUrl");
+      if (!this.pgUrl) throw Error("no pgUrl set");
+  
+      const client = new Client({
+        connectionString: this.pgUrl
+      });
+  
+      try {
+        await client.connect();
+        const res = await client.query(
+          "INSERT INTO callbacks(tx_hash,network,callback_url) \
+                VALUES ($1,$2,$3)",
+          [txHash, networkId,callbackUrl]
+        );
+      } catch (e) {
+        throw e;
+      } finally {
+        await client.end();
+      }
+    }
+
+    async getPendingCallbacks(networkId){
+      if (!networkId) throw Error("no networkId");
+      if (!this.pgUrl) throw Error("no pgUrl set");
+  
+      const client = new Client({
+        connectionString: this.pgUrl
+      });
+  
+      try {
+        await client.connect();
+        const res = await client.query(
+          "SELECT tx_hash,network,callback_url \
+             FROM callbacks \
+            WHERE network=$1",
+          [networkId]
+        );
+        return res.rows;
+      } catch (e) {
+        throw e;
+      } finally {
+        await client.end();
+      }
+  }
+
+  async removeCallback(networkId,txHash){
+      if (!networkId) throw Error("no networkId");
+      if (!txHash) throw Error("no txHash");
+      if (!this.pgUrl) throw Error("no pgUrl set");
+  
+      const client = new Client({
+        connectionString: this.pgUrl
+      });
+  
+      try {
+        await client.connect();
+        const res = await client.query(
+          "DELETE FROM callbacks \
+            WHERE network=$1 \
+              AND tx_hash=$2",
+          [networkId,txHash]
+        );
+      } catch (e) {
+        throw e;
+      } finally {
+        await client.end();
+      }
+
+  }
+
+
+    async doCallbacks(networkId){
+      if (!networkId) throw "no networkId";
+
+      const pending=await this.getPendingCallbacks(networkId);
+
+      let promises=[];
+
+      for(let i=0;i<pending.length;i++){
+        const pend=pending[i];
+        console.log("checking pending: "+pend.tx_hash)
+
+        //Checking pending tx
+        promises.push( new Promise( async (done) => {
+
+          //Check if tx is mined already
+          const txReceipt=await this.ethereumMgr.getTransactionReceipt(networkId,pend.tx_hash);
+          //console.log(txReceipt);
+          if(txReceipt!=null){
+
+              //Callback
+              const options = {
+                  method: 'GET',
+                  uri: pend.callback_url,
+              };
+            
+              try{
+                const callbackResp = await rp(options);
+                console.log(callbackResp);
+              }catch(err){
+                console.log(err.message)
+              }
+
+              //console.log(txReceipt);
+              console.log("["+pend.tx_hash+"]    ...removing callback")
+              await this.removeCallback(networkId,pend.tx_hash);
+              console.log("["+pend.tx_hash+"]    ...removed!")
+
+          }
+          done();
+        }));
+
+
+      } // /for 
+
+      Promise.all(promises)
     }
 }
