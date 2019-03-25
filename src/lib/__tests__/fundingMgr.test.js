@@ -317,6 +317,73 @@ describe('FundingMgr', () => {
         })
     });
 
+    describe("storeFunding", () => {
+        
+        test('no txHash', (done)=> {
+            sut.storeFunding()
+            .then((resp)=> {
+                fail("shouldn't return"); done()
+            })
+            .catch( (err)=>{
+                expect(err.message).toEqual('no txHash')
+                done()
+            })
+        })
+
+        test('no networkId', (done)=> {
+            sut.storeFunding("t")
+            .then((resp)=> {
+                fail("shouldn't return"); done()
+            })
+            .catch( (err)=>{
+                expect(err.message).toEqual('no networkId')
+                done()
+            })
+        })
+
+        test('no decodedTx', (done)=> {
+            sut.storeFunding("t","n")
+            .then((resp)=> {
+                fail("shouldn't return"); done()
+            })
+            .catch( (err)=>{
+                expect(err.message).toEqual('no decodedTx')
+                done()
+            })
+        })
+
+        test('fail query', (done)=>{
+            pgClientMock.query.mockImplementationOnce(  () => {throw new Error("query() fail")})
+            sut.storeFunding("t","n","d")
+            .then((resp)=> {
+                fail("shouldn't return"); done()
+            })
+            .catch( (err)=>{
+                expect(err.message).toEqual('query() fail')
+                done()
+            })
+            
+        })
+
+        test('happy path', (done)=>{
+            pgClientMock.query = jest.fn(() => { return Promise.resolve();});
+            sut.storeFunding("t","n","d")
+            .then((resp)=> {
+                expect(pgClientMock.connect).toBeCalled();
+                expect(pgClientMock.query).toBeCalled();
+                expect(pgClientMock.query).toBeCalledWith(
+                "INSERT INTO fundings(tx_hash,network,decoded_tx) \
+                 VALUES ($1,$2,$3)",
+                ["t","n","d"]
+                );
+                expect(pgClientMock.end).toBeCalled();
+                done();
+            })
+            
+        })
+
+    });
+
     describe("fundAddr()", () => {
 
         test('no networkId', (done)=> {
@@ -410,6 +477,71 @@ describe('FundingMgr', () => {
     });
 
 
+    describe("storeCallback", () => {
+        
+        test('no txHash', (done)=> {
+            sut.storeCallback()
+            .then((resp)=> {
+                fail("shouldn't return"); done()
+            })
+            .catch( (err)=>{
+                expect(err.message).toEqual('no txHash')
+                done()
+            })
+        })
 
+        test('no networkId', (done)=> {
+            sut.storeCallback("t")
+            .then((resp)=> {
+                fail("shouldn't return"); done()
+            })
+            .catch( (err)=>{
+                expect(err.message).toEqual('no networkId')
+                done()
+            })
+        })
+
+        test('no callbackUrl', (done)=> {
+            sut.storeCallback("t","n")
+            .then((resp)=> {
+                fail("shouldn't return"); done()
+            })
+            .catch( (err)=>{
+                expect(err.message).toEqual('no callbackUrl')
+                done()
+            })
+        })
+
+        test('fail query', (done)=>{
+            pgClientMock.query.mockImplementationOnce(  () => {throw new Error("query() fail")})
+            sut.storeCallback("t","n","c")
+            .then((resp)=> {
+                fail("shouldn't return"); done()
+            })
+            .catch( (err)=>{
+                expect(err.message).toEqual('query() fail')
+                done()
+            })
+            
+        })
+
+        test('happy path', (done)=>{
+            pgClientMock.query = jest.fn(() => { return Promise.resolve();});
+            sut.storeCallback("t","n","c")
+            .then((resp)=> {
+                expect(pgClientMock.connect).toBeCalled();
+                expect(pgClientMock.query).toBeCalled();
+                expect(pgClientMock.query).toBeCalledWith(
+                "INSERT INTO callbacks(tx_hash,network,callback_url) \
+                VALUES ($1,$2,$3)",
+                ["t","n","c"]
+                );
+                expect(pgClientMock.end).toBeCalled();
+                done();
+            })
+            
+        })
+
+    });
 
 });
