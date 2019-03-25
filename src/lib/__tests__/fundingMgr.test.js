@@ -181,7 +181,6 @@ describe('FundingMgr', () => {
         })
     });
 
-
     describe("fundingInfo()", () => {
 
         test('no networkId', (done)=> {
@@ -384,6 +383,111 @@ describe('FundingMgr', () => {
 
     });
 
+    describe("getPendingFunding", () => {
+        
+        test('no networkId', (done)=> {
+            sut.getPendingFunding()
+            .then((resp)=> {
+                fail("shouldn't return"); done()
+            })
+            .catch( (err)=>{
+                expect(err.message).toEqual('no networkId')
+                done()
+            })
+        })
+
+        test('fail query', (done)=>{
+            pgClientMock.query.mockImplementationOnce(  () => {throw new Error("query() fail")})
+            sut.getPendingFunding("n")
+            .then((resp)=> {
+                fail("shouldn't return"); done()
+            })
+            .catch( (err)=>{
+                expect(err.message).toEqual('query() fail')
+                done()
+            })
+            
+        })
+
+        test('happy path', (done)=>{
+            pgClientMock.query = jest.fn(() => { return Promise.resolve({ rows: ["p"]});});
+            sut.getPendingFunding("n")
+            .then((resp)=> {
+                expect(pgClientMock.connect).toBeCalled();
+                expect(pgClientMock.query).toBeCalled();
+                expect(pgClientMock.query).toBeCalledWith(
+                "SELECT tx_hash,network,decoded_tx \
+               FROM fundings \
+              WHERE network=$1",
+                ["n"]
+                );
+                expect(pgClientMock.end).toBeCalled();
+                expect(resp).toEqual(["p"])
+                done();
+            })
+            
+        })
+
+    });
+
+    describe("removeFunding", () => {
+
+        test('no networkId', (done)=> {
+            sut.removeFunding()
+            .then((resp)=> {
+                fail("shouldn't return"); done()
+            })
+            .catch( (err)=>{
+                expect(err.message).toEqual('no networkId')
+                done()
+            })
+        })
+        
+        test('no txHash', (done)=> {
+            sut.removeFunding("n")
+            .then((resp)=> {
+                fail("shouldn't return"); done()
+            })
+            .catch( (err)=>{
+                expect(err.message).toEqual('no txHash')
+                done()
+            })
+        })
+
+
+        test('fail query', (done)=>{
+            pgClientMock.query.mockImplementationOnce(  () => {throw new Error("query() fail")})
+            sut.removeFunding("n","t")
+            .then((resp)=> {
+                fail("shouldn't return"); done()
+            })
+            .catch( (err)=>{
+                expect(err.message).toEqual('query() fail')
+                done()
+            })
+            
+        })
+
+        test('happy path', (done)=>{
+            pgClientMock.query = jest.fn(() => { return Promise.resolve();});
+            sut.removeFunding("n","t")
+            .then((resp)=> {
+                expect(pgClientMock.connect).toBeCalled();
+                expect(pgClientMock.query).toBeCalled();
+                expect(pgClientMock.query).toBeCalledWith(
+                "DELETE FROM fundings \
+              WHERE network=$1 \
+                AND tx_hash=$2",
+                ["n","t"]
+                );
+                expect(pgClientMock.end).toBeCalled();
+                done();
+            })
+            
+        })
+
+    });
+
     describe("fundAddr()", () => {
 
         test('no networkId', (done)=> {
@@ -476,7 +580,6 @@ describe('FundingMgr', () => {
         })
     });
 
-
     describe("storeCallback", () => {
         
         test('no txHash', (done)=> {
@@ -544,4 +647,108 @@ describe('FundingMgr', () => {
 
     });
 
+    describe("getPendingCallbacks", () => {
+        
+        test('no networkId', (done)=> {
+            sut.getPendingCallbacks()
+            .then((resp)=> {
+                fail("shouldn't return"); done()
+            })
+            .catch( (err)=>{
+                expect(err.message).toEqual('no networkId')
+                done()
+            })
+        })
+
+        test('fail query', (done)=>{
+            pgClientMock.query.mockImplementationOnce(  () => {throw new Error("query() fail")})
+            sut.getPendingCallbacks("n")
+            .then((resp)=> {
+                fail("shouldn't return"); done()
+            })
+            .catch( (err)=>{
+                expect(err.message).toEqual('query() fail')
+                done()
+            })
+            
+        })
+
+        test('happy path', (done)=>{
+            pgClientMock.query = jest.fn(() => { return Promise.resolve({ rows: ["p"]});});
+            sut.getPendingCallbacks("n")
+            .then((resp)=> {
+                expect(pgClientMock.connect).toBeCalled();
+                expect(pgClientMock.query).toBeCalled();
+                expect(pgClientMock.query).toBeCalledWith(
+                "SELECT tx_hash,network,callback_url \
+             FROM callbacks \
+            WHERE network=$1",
+                ["n"]
+                );
+                expect(pgClientMock.end).toBeCalled();
+                expect(resp).toEqual(["p"])
+                done();
+            })
+            
+        })
+
+    });
+
+    describe("removeCallback", () => {
+
+        test('no networkId', (done)=> {
+            sut.removeCallback()
+            .then((resp)=> {
+                fail("shouldn't return"); done()
+            })
+            .catch( (err)=>{
+                expect(err.message).toEqual('no networkId')
+                done()
+            })
+        })
+        
+        test('no txHash', (done)=> {
+            sut.removeCallback("n")
+            .then((resp)=> {
+                fail("shouldn't return"); done()
+            })
+            .catch( (err)=>{
+                expect(err.message).toEqual('no txHash')
+                done()
+            })
+        })
+
+
+        test('fail query', (done)=>{
+            pgClientMock.query.mockImplementationOnce(  () => {throw new Error("query() fail")})
+            sut.removeCallback("n","t")
+            .then((resp)=> {
+                fail("shouldn't return"); done()
+            })
+            .catch( (err)=>{
+                expect(err.message).toEqual('query() fail')
+                done()
+            })
+            
+        })
+
+        test('happy path', (done)=>{
+            pgClientMock.query = jest.fn(() => { return Promise.resolve();});
+            sut.removeCallback("n","t")
+            .then((resp)=> {
+                expect(pgClientMock.connect).toBeCalled();
+                expect(pgClientMock.query).toBeCalled();
+                expect(pgClientMock.query).toBeCalledWith(
+                "DELETE FROM callbacks \
+            WHERE network=$1 \
+              AND tx_hash=$2",
+                ["n","t"]
+                );
+                expect(pgClientMock.end).toBeCalled();
+                done();
+            })
+            
+        })
+
+    });
 });
