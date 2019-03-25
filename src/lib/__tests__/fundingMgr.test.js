@@ -95,6 +95,40 @@ describe('FundingMgr', () => {
           });
     });
 
+    test("storeCallback() no pgUrl set", done => {
+        sut.storeCallback("t", "n","c").then(resp => {
+            fail("shouldn't return");
+            done();
+          })
+          .catch(err => {
+            expect(err.message).toEqual("no pgUrl set");
+            done();
+          });
+    });
+
+    test("getPendingCallbacks() no pgUrl set", done => {
+        sut.getPendingCallbacks("n").then(resp => {
+            fail("shouldn't return");
+            done();
+          })
+          .catch(err => {
+            expect(err.message).toEqual("no pgUrl set");
+            done();
+          });
+    });
+
+    test("removeCallback() no pgUrl set", done => {
+        sut.removeCallback
+        ("n","t").then(resp => {
+            fail("shouldn't return");
+            done();
+          })
+          .catch(err => {
+            expect(err.message).toEqual("no pgUrl set");
+            done();
+          });
+    });
+
     test("setSecrets", () => {
         expect(sut.isSecretsSet()).toEqual(false);
         sut.setSecrets({ PG_URL: "fakepsql" });
