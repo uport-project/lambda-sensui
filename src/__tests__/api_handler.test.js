@@ -1,16 +1,33 @@
-import AWS from "aws-sdk";
-import MockAWS from "aws-sdk-mock";
+const AWS = require("aws-sdk");
+const MockAWS = require ("aws-sdk-mock");
 MockAWS.setSDKInstance(AWS);
 
 const apiHandler = require('../api_handler');
 
 describe('apiHandler', () => {
 
-    
-    beforeAll(()=>{
-        MockAWS.mock("KMS", "decrypt", Promise.resolve({Plaintext:"{}"}));
-        process.env.SECRETS="badSecret"
+    beforeAll(() => {
+        MockAWS.mock("KMS", "decrypt", Promise.resolve({Plaintext: "{}"}));
+        process.env.SECRETS="fakesecrets";
     })
+
+    test('rpc()', done => {
+        apiHandler.rpc({},{},(err,res)=>{
+            expect(err).toBeNull()
+            expect(res).not.toBeNull()
+            
+            done();
+        })
+    });
+
+    test('new_block()', done => {
+        apiHandler.new_block({},{},(err,res)=>{
+            expect(err).toBeNull()
+            expect(res).not.toBeNull()
+            
+            done();
+        })
+    });
 
     test('fund()', done => {
         apiHandler.fund({},{},(err,res)=>{
@@ -21,13 +38,5 @@ describe('apiHandler', () => {
         })
     });
 
-    test('relay()', done => {
-        apiHandler.relay({},{},(err,res)=>{
-            expect(err).toBeNull()
-            expect(res).not.toBeNull()
-            
-            done();
-        })
-    });
 
 });

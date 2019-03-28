@@ -66,3 +66,11 @@ curl_scripts/
 .DS_Store
 
 .vscode
+
+create-identity.js
+create-validtoken.js
+create-authtoken.js
+
+.secret.infura-key
+.infura-key
+.secret

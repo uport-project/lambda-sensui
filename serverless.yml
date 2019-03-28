@@ -1,87 +1,70 @@
-# serverless.yml
-
-# Serverless.yml is the configuration the CLI uses to deploy your code to
-# your provider of choice. The file denotes the entire architecture of the
-# server, including the provider, the plugins, and the functions.
-
-# Read the serverless docs here:
-# https://serverless.com/framework/docs/
-
-# The `service` block is the name of the service
 service: lambda-sensui
-# The `provider` block defines where your service will be deployed
-provider:
-  name: aws
-  runtime: nodejs6.10
-  stage: develop
-  region: us-west-2
-  iamRoleStatements:
-    - Effect: Allow
-      Action:
-      - KMS:Decrypt
-      Resource: ${self:custom.kmsSecrets.keyArn}
-    - Effect: Allow
-      Action:
-      - s3:*
-      Resource: 'arn:aws:s3:::*'
 
-  environment:
-      SECRETS: ${self:custom.kmsSecrets.secrets.SECRETS}
-
-# Use the serverless-webpack plugin to transpile ES6
-
-# serverless-kms-secrets: Serverless plugin to encrypt variables with KMS
-# A Serverless Plugin for the Serverless Framework which helps with
-# encrypting service secrets using the AWS Key Management Service (KMS)
 plugins:
-  - serverless-webpack
+  - serverless-offline
   - serverless-kms-secrets
+  - serverless-domain-manager
+  - serverless-plugin-aws-alerts
 
-# Enable auto-packing of external modules
+provider:
+   name: aws
+   runtime: nodejs8.10
+   stage: develop
+   region: us-west-2
+   iamRoleStatements:
+     - Effect: Allow
+       Action:
+         - KMS:Decrypt
+       Resource: ${self:custom.kmsSecrets.keyArn} 
+   environment:
+      SECRETS: ${self:custom.kmsSecrets.secrets.SECRETS}
+ 
 custom:
-  webpackIncludeModules: true
-  serverless-kms-secrets:
+   serverless-kms-secrets:
     secretsFile: kms-secrets.${opt:stage, self:provider.stage}.${opt:region, self:provider.region}.yml
-  kmsSecrets: ${file(kms-secrets.${opt:stage, self:provider.stage}.${opt:region, self:provider.region}.yml)}
-# The `functions` block defines what code to deploy
+   kmsSecrets: ${file(kms-secrets.${opt:stage, self:provider.stage}.${opt:region, self:provider.region}.yml)}
+   domainName: 
+      develop: api.uport.space
+      master: api.uport.me
+   customDomain:
+    domainName: ${self:custom.domainName.${opt:stage, self:provider.stage}}
+    basePath: sensui
+    createRoute53Record: false
+   alerts:
+    dashboards: true
+    topics:
+      alarm: arn:aws:sns:us-west-2:113196216558:cloudwatch-alarm-to-slack
+    alarms:
+      - functionThrottles
+      - functionErrors
+      - functionInvocations
+      - functionDuration 
+
+
 functions:
+  rpc:
+    description: RPC handler
+    handler: src/api_handler.rpc
+    timeout: 30
+    events:
+     - http:
+         path: rpc/{networkId}/{authToken}
+         method: post
+  new_block:
+    description: New Block handler
+    handler: src/api_handler.new_block
+    timeout: 30
+    events:
+     - http:
+         path: new_block/{networkId}
+         method: get
   fund:
-    handler: src/api_handler.fund
     description: Fund handler
+    handler: src/api_handler.fund
     timeout: 30
     events:
      - http:
-         path: v1/fund #Legacy
+         path: fund/{networkId}/{authToken}
          method: post
-     - http:
-         path: fund
-         method: post
-  relay:
-    handler: src/api_handler.relay
-    description: Relay handler
-    timeout: 30
-    events:
-     - http:
-         path: v2/relay #Legacy
-         method: post
-     - http:
-         path: relay
-         method: post
-  checkPending:
-    handler: src/api_handler.checkPending
-    timeout: 30
-    description: uPort check if pending tx are mined
-    events:
-     - http:
-         path: checkPending
-         method: post
-  checkBalances:
-    handler: src/jobs_handler.checkBalances
-    description: uPort check for balances on all address used and report if low funds
-    events:
-      - schedule:
-          rate: rate(10 minutes)
-          enabled: true
-  fixNonces:
-    handler: src/script_handler.fixNonces
-    description: uPort fix for blockchain nonces against database stored nonce
+  
+  
