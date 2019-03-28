@@ -4,6 +4,7 @@ plugins:
   - serverless-offline
   - serverless-kms-secrets
   - serverless-domain-manager
+  - serverless-plugin-aws-alerts
 
 provider:
    name: aws
@@ -29,6 +30,15 @@ custom:
     domainName: ${self:custom.domainName.${opt:stage, self:provider.stage}}
     basePath: sensui
     createRoute53Record: false
+   alerts:
+    dashboards: true
+    topics:
+      alarm: arn:aws:sns:us-west-2:113196216558:cloudwatch-alarm-to-slack
+    alarms:
+      - functionThrottles
+      - functionErrors
+      - functionInvocations
+      - functionDuration 
 
 
 functions:
