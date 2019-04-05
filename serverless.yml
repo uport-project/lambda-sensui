@@ -66,5 +66,11 @@ functions:
      - http:
          path: fund/{networkId}/{authToken}
          method: post
+  check_pendings:
+    handler: src/jobs_handler.check_pendings
+    events:
+     - schedule:
+         rate: rate(5 minutes)
+         enabled: true
   
   
