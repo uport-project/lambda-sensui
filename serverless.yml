@@ -38,7 +38,10 @@ custom:
       - functionThrottles
       - functionErrors
       - functionInvocations
-      - functionDuration 
+      - functionDuration
+    definitions: 
+      functionDuration:
+        threshold: 1000
 
 
 functions:
