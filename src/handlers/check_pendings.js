@@ -10,33 +10,20 @@ module.exports = class CheckPendingsHandler {
         //Just for timestamping the start of the call
         console.log("Start..");
 
+        let promises=[]
+
         for (const networkId in networks) {
-            console.log("Checking on networkId: "+networkId);
             //Release mined tx in ethereumMgr
-            try {
-                await this.ethereumMgr.releaseCompleted(networkId);
-            } catch (error) {
-                console.log(error);
-                cb(error); return;
-            }
+            promises.push(this.ethereumMgr.releaseCompleted(networkId))
             
             //Retry pending tx in fundingMgr
-            try {
-                await this.fundingMgr.retry(networkId);
-            } catch (error) {
-                console.log(error);
-                cb(error); return;
-            }
-
-            // do callbacks
-            try {
-                await this.fundingMgr.doCallbacks(networkId);
-            } catch (error) {
-                console.log(error);
-                cb(error); return;
-            }
+            promises.push(this.fundingMgr.retry(networkId))
             
+            // do callbacks
+            promises.push(this.fundingMgr.doCallbacks(networkId))
         }
+
+        await Promise.all(promises)
         cb(null,"OK")
         return;
     }

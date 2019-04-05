@@ -250,22 +250,22 @@ module.exports = class EthereumMgr {
       let promises=[];
       for(let i=1;i<this.addresses.length;i++){
         const addr=this.addresses[i];
-        console.log("checking addr: "+addr)
+        console.log("["+networkId+":"+addr+"] checking ...")
 
         //Checking status
         promises.push( new Promise( async (done) => {
           const status = await this.statusAccount(networkId,addr);
-          console.log("["+addr+"] status:"+status);
+          console.log("["+networkId+":"+addr+"] status: "+status);
           if(status!=null && status.startsWith('0x')){
 
             //Check if mined;
             const txReceipt=await this.getTransactionReceipt(networkId,status);
             //console.log(txReceipt);
             if(txReceipt!=null){
-              console.log(txReceipt);
-              console.log("["+addr+"]    ...releasing account")
+              console.log("["+networkId+":"+addr+"] txReceipt: "+JSON.stringify(txReceipt));
+              console.log("["+networkId+":"+addr+"] ...releasing account")
               await this.updateAccount(networkId,addr,null);
-              console.log("["+addr+"]    ...released!")
+              console.log("["+networkId+":"+addr+"] ...released!")
             }
           }
           done();

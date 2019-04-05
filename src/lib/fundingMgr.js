@@ -201,8 +201,8 @@ module.exports = class FundingMgr {
 
         for(let i=0;i<pending.length;i++){
           const pend=pending[i];
-          console.log("checking pending: "+pend.tx_hash)
-  
+          console.log("["+networkId+":"+pend.tx_hash+"] checking... ");
+
           //Checking pending tx
           promises.push( new Promise( async (done) => {
 
@@ -210,22 +210,20 @@ module.exports = class FundingMgr {
             const txReceipt=await this.ethereumMgr.getTransactionReceipt(networkId,pend.tx_hash);
             //console.log(txReceipt);
             if(txReceipt!=null){
-
-                console.log(txReceipt);
-                console.log("["+pend.tx_hash+"]    ...removing funding tx")
-                await this.removeFunding(networkId,pend.tx_hash);
-                console.log("["+pend.tx_hash+"]    ...removed!")
+              console.log("["+networkId+":"+pend.tx_hash+"] txReceipt: "+JSON.stringify(txReceipt));
+              console.log("["+networkId+":"+pend.tx_hash+"] ...removing funding tx")
+              await this.removeFunding(networkId,pend.tx_hash);
+              console.log("["+networkId+":"+pend.tx_hash+"] ...removed!")
 
             }else{
-
-                //Checking if funding is still needed
-                const fundingInfo=await this.fundingInfo(networkId,pend.decoded_tx)
-                if(!fundingInfo.isFundingNeeded){
-                    //Relay to networkEndpoint
-                    console.log("["+pend.tx_hash+"] No funding needed. Relaying.")
-                    await this.ethereumMgr.sendRawTransaction(networkId,pend.decoded_tx.raw);
-                    return;
-                }
+              //Checking if funding is still needed
+              const fundingInfo=await this.fundingInfo(networkId,pend.decoded_tx)
+              if(!fundingInfo.isFundingNeeded){
+                  //Relay to networkEndpoint
+                  console.log("["+networkId+":"+pend.tx_hash+"] No funding needed. Relaying... ");
+                  await this.ethereumMgr.sendRawTransaction(networkId,pend.decoded_tx.raw);
+                  console.log("["+networkId+":"+pend.tx_hash+"] Relayed! ");
+              }
             }
             done();
           }));
@@ -350,7 +348,7 @@ module.exports = class FundingMgr {
 
       for(let i=0;i<pending.length;i++){
         const pend=pending[i];
-        console.log("checking pending: "+pend.tx_hash)
+        console.log("["+networkId+":"+pend.tx_hash+"] checking... ");
 
         //Checking pending tx
         promises.push( new Promise( async (done) => {
@@ -359,24 +357,25 @@ module.exports = class FundingMgr {
           const txReceipt=await this.ethereumMgr.getTransactionReceipt(networkId,pend.tx_hash);
           //console.log(txReceipt);
           if(txReceipt!=null){
+            console.log("["+networkId+":"+pend.tx_hash+"] txReceipt: "+JSON.stringify(txReceipt));
+            console.log("["+networkId+":"+pend.tx_hash+"] ... callbacking...")
+            //Callback
+            const options = {
+                method: 'GET',
+                uri: pend.callback_url,
+            };
+          
+            try{
+              const callbackResp = await rp(options);
+              console.log(callbackResp);
+            }catch(err){
+              console.log(err.message)
+            }
+            console.log("["+networkId+":"+pend.tx_hash+"] ... callbacked!")
 
-              //Callback
-              const options = {
-                  method: 'GET',
-                  uri: pend.callback_url,
-              };
-            
-              try{
-                const callbackResp = await rp(options);
-                console.log(callbackResp);
-              }catch(err){
-                console.log(err.message)
-              }
-
-              //console.log(txReceipt);
-              console.log("["+pend.tx_hash+"]    ...removing callback")
-              await this.removeCallback(networkId,pend.tx_hash);
-              console.log("["+pend.tx_hash+"]    ...removed!")
+            console.log("["+networkId+":"+pend.tx_hash+"] ... removing callback")
+            await this.removeCallback(networkId,pend.tx_hash);
+            console.log("["+networkId+":"+pend.tx_hash+"] ... removed!")
 
           }
           done();
