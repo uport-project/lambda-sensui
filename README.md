@@ -1,6 +1,8 @@
 # lambda-sensui
 uPort Funding Service
 
+[FAQ and helpdesk support](http://bit.ly/uPort_helpdesk)
+
 [![CircleCI](https://circleci.com/gh/uport-project/lambda-sensui.svg?style=svg&circle-token=b2953f00d5cd866df70f0c221e2018e6ab6683b8)](https://circleci.com/gh/uport-project/lambda-sensui)
 
 [![codecov](https://codecov.io/gh/uport-project/lambda-sensui/branch/master/graph/badge.svg?token=h0GWHsuPtL)](https://codecov.io/gh/uport-project/lambda-sensui)
